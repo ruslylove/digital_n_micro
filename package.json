@@ -1,0 +1,17 @@
+{
+  "name": "digital_n_micro",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "slidev build",
+    "dev": "npm run copy-assets && slidev --open",
+    "export": "slidev export",
+    "copy-assets": "cpx 'common/public/**/*' public"
+  },
+  "dependencies": {
+    "@slidev/cli": "^52.11.1",
+    "@slidev/theme-default": "latest",
+    "@slidev/theme-seriph": "latest",
+    "vue": "^3.5.26"
+  }
+}
