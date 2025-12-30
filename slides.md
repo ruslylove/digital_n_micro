@@ -16,7 +16,7 @@ mdc: true
 favicon: '/common/img/60348.jpg'
 author: Dr. Ruslee Sutthaweekul
 semester: 2/2025
-subject: 010113025 Digital Circuit & Logic Design
+subject: 010153101 Digital & Micro. Fundamentals
 hideInToc: true
 # Digital Circuit and Logic Design
 ---
