@@ -5,7 +5,7 @@ theme: seriph
 # like them? see https://unsplash.com/collections/94734566/slidev
 background: https://cover.sli.dev
 # some information about your slides (markdown enabled)
-title: Top-level
+title: Welcome to 010153101 Digital & Micro. Fundamentals
 transition: fade
 # enable MDC Syntax: https://sli.dev/features/mdc
 mdc: true
@@ -45,7 +45,7 @@ hideInToc: true
 # Contents
 <Toc maxDepth='1' columns='1'/>
 ---
-src: /common/lecture_0.md
+src: /lecture_0.md
 ---
 ---
 src: /common/lecture_1.md
