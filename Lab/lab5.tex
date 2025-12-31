@@ -4,6 +4,7 @@
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage{minted}
+\usepackage{circuitikz}
 \usepackage{tikz}
 \usetikzlibrary{shapes, arrows, calc, positioning, circuits.logic.US, circuits.logic.IEC}
 \usepackage{geometry}
@@ -106,7 +107,7 @@ Perform the following steps:
     \item \textbf{First, implement the circuit using Schematic Design.} Draw the circuit using the Block Editor.
     \item Compile the schematic design and perform a functional simulation to verify its correctness.
     \item \textbf{Next, implement the circuit using Structural VHDL Design.}
-    \item Generate a VHDL file using the style of code in Figure 2 for the gated D latch. Use the KEEP directive to ensure that separate logic elements are used to implement the signals R, S\_g, R\_g, Qa, and Qb.
+    \item Modify the VHDL code from Part I to implement the gated D latch. Use the KEEP directive to ensure that separate logic elements are used to implement the signals R, S\_g, R\_g, Qa, and Qb.
     \item Compile your project and then use the Technology Map Viewer tool to examine the implemented circuit.
     \item Verify that the latch works properly for all input conditions by using functional simulation. Examine the timing characteristics of the circuit by using timing simulation.
     \item Create a new Quartus project which will be used for implementation of the gated D latch on your DE-series board. This project should consist of a top-level module that contains the appropriate input and output ports (pins) for your board. Instantiate your latch in this top-level module. Use switch SW0 to drive the D input of the latch, and use SW1 as the Clk input. Connect the Q output to LEDR0.
@@ -129,10 +130,10 @@ Figure 6 shows the circuit for a master-slave D flip-flop.
 Perform the following:
 \begin{enumerate}
     \item Create a new Quartus project.
-    \item \textbf{First, implement the circuit using Schematic Design.} Draw the circuit using the Block Editor.
+    \item \textbf{First, implement the circuit using Schematic Design.} Create a symbol for the Gated D latch from Part II and use it to build the circuit.
     \item Compile the schematic design and perform a functional simulation to verify its correctness.
     \item \textbf{Next, implement the circuit using Structural VHDL Design.}
-    \item Generate a VHDL file that instantiates two copies of your gated D latch module from Part II to implement the master-slave flip-flop.
+    \item Create a VHDL entity/component for the gated D latch from Part II. Then, write a top-level VHDL file that instantiates two copies of this component to implement the master-slave flip-flop.
     \item Include in your project the appropriate input and output ports for your DE-series board. Use switch SW0 to drive the D input of the flip-flop, and use SW1 as the Clock input. Connect the Q output to LEDR0.
     \item Include the required pin assignments and then compile your project.
     \item Use the Technology Viewer to examine the D flip-flop circuit, and use simulation to verify its correct operation.
@@ -147,8 +148,15 @@ Figure 7 shows a circuit with three different storage elements: a gated D latch,
     \centering
     % Placeholder for Figure 7: Three storage elements
     \input{tex/three_storage_elements.tex}
-    \caption{Circuit and waveforms for Part IV.}
+    \caption{Circuit for Part IV.}
     \label{fig:three_storage}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centering
+    \input{tex/three_storage_elements_timing.tex}
+    \caption{Waveforms for Part IV.}
+    \label{fig:three_storage_timing}
 \end{figure}
 
 Implement and simulate this circuit using the Quartus software as follows:

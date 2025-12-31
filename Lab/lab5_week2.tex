@@ -4,6 +4,7 @@
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage{minted}
+\usepackage{circuitikz}
 \usepackage{tikz}
 \usetikzlibrary{shapes, arrows, calc, positioning, circuits.logic.US, circuits.logic.IEC}
 \usepackage{geometry}
@@ -45,8 +46,15 @@ Figure 7 shows a circuit with three different storage elements: a gated D latch,
     \centering
     % Placeholder for Figure 7: Three storage elements
     \input{tex/three_storage_elements.tex}
-    \caption{Circuit and waveforms for Part IV.}
+    \caption{Circuit for Part IV.}
     \label{fig:three_storage}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \input{tex/three_storage_elements_timing.tex}
+    \caption{Waveforms for Part IV.}
+    \label{fig:three_storage_timing}
 \end{figure}
 
 Implement and simulate this circuit using the Quartus software as follows:

@@ -1,71 +1,53 @@
-\begin{tikzpicture}[
-    ieee symbol/.style = {draw, rectangle, minimum height=4em, minimum width=3.5em, align=center, thick},
-    input/.style = {coordinate},
-    output/.style = {coordinate}
-]
+\begin{circuitikz}
+    \ctikzset{logic ports=ieee}
+    \ctikzset{flipflops/scale=1}
+
+    % Define Styles based on Figure 6
+    \tikzset{latch-style/.style={flipflop, flipflop def={t1=D, t3=E, t6=Q}}}
+    \tikzset{ff-style/.style={flipflop, flipflop def={t1=D, t6=Q}}}
+
+    % Nodes
     % 1. Gated D Latch
-    \node [ieee symbol] (latch) {};
-    \node[anchor=north west] at (latch.north west) {\scriptsize D};
-    \node[anchor=south west] at (latch.south west) {\scriptsize E};
-    \node[anchor=east] at (latch.east) {\scriptsize Q};
-    \node[left=0.1cm of latch] (latch_label) {Gated D Latch};
+    \node[latch-style] (latch) at (0, 0) {};
+    \node[above] at (latch.north) {Gated D Latch};
 
-    % 2. Pos-Edge D Flip-Flop
-    \node [ieee symbol, below=2.5cm of latch] (pos_ff) {};
-    \node[anchor=north west] at (pos_ff.north west) {\scriptsize D};
-    % Triangle for Clock
-    \draw (pos_ff.south west) ++(0, 0.45) -- ++(0.3, -0.15) -- ++(-0.3, -0.15); 
-    % \node[anchor=south west] at (pos_ff.south west) {\scriptsize >}; % Manual triangle is better
-    \node[anchor=east] at (pos_ff.east) {\scriptsize Q};
-    \node[left=0.1cm of pos_ff] (pos_label) {Pos-Edge D FF};
+    % 2. Pos-Edge D FF
+    \node[ff-style] (pos_ff) at (0, -3.5) {};
+    \node[above] at (pos_ff.north) {Pos-Edge D FF};
+    % Clock Wedge
+    \draw (pos_ff.pin 3) ++(0, 0.2) -- ++(0.3, -0.2) -- ++(-0.3, -0.2);
 
-    % 3. Neg-Edge D Flip-Flop
-    \node [ieee symbol, below=2.5cm of pos_ff] (neg_ff) {};
-    \node[anchor=north west] at (neg_ff.north west) {\scriptsize D};
-    % Triangle for Clock
-    \draw (neg_ff.south west) ++(0, 0.45) -- ++(0.3, -0.15) -- ++(-0.3, -0.15);
-    % Bubble for Neg-Edge (External on the line usually, or symbol property? IEEE has bubble at input pin)
-    % We will draw a circle at the input pin location
-    \draw [fill=white] ($(neg_ff.south west)!0.25!(neg_ff.north west)$) ++(-0.15,0) circle (0.15cm);
-    
-    \node[anchor=east] at (neg_ff.east) {\scriptsize Q};
-    \node[left=0.1cm of neg_ff] (neg_label) {Neg-Edge D FF};
-    
+    % 3. Neg-Edge D FF
+    \node[ff-style] (neg_ff) at (0, -7) {};
+    \node[above] at (neg_ff.north) {Neg-Edge D FF};
+    % Clock Wedge
+    \draw (neg_ff.pin 3) ++(0, 0.2) -- ++(0.3, -0.2) -- ++(-0.3, -0.2);
+    % Bubble for Neg-Edge (Input side)
+    \node[not port, anchor=out, scale=0.5] (clk_inv) at (neg_ff.pin 3) {};
 
     % Common Inputs
-    \node [input, left=3cm of pos_ff] (Clk_in) {};
-    \node [input, left=3cm of latch] (D_in) {}; 
-    
-    % Wiring D
-    \draw (D_in) node[left] {D} -- ++(1,0) coordinate (D_bus);
-    
-    % To Latch D (North West input)
-    \draw [->] (D_bus) |- ($(latch.north west)!0.25!(latch.south west)$);
-    
-    % To Pos FF D
-    \draw [->] (D_bus) |- ($(pos_ff.north west)!0.25!(pos_ff.south west)$);
-    
-    % To Neg FF D
-    \draw [->] (D_bus) |- ($(neg_ff.north west)!0.25!(neg_ff.south west)$);
+    \coordinate (D_in) at (-3.5, 1);
+    \coordinate (Clk_in) at (-3.5, -2); % Positioned nicely
 
+    \draw (D_in) node[left] {D} -- (D_in -| latch.pin 1) coordinate (D_top) -- (latch.pin 1);
+    \draw (D_top) -- (D_top |- pos_ff.pin 1) -- (pos_ff.pin 1);
+    \draw (D_top |- pos_ff.pin 1) -- (D_top |- neg_ff.pin 1) -- (neg_ff.pin 1);
 
-    % Wiring Clock
-    \draw (Clk_in) node[left] {Clock} -- ++(1.5,0) coordinate (Clk_bus);
+    % Clock Wiring
+    \draw (Clk_in) node[left] {Clock} -- (Clk_in -| latch.pin 3) coordinate (Clk_bus);
     
-    % To Latch E (South West input) - No triangle, Level triggered
-    \draw [->] (Clk_bus) |- ($(latch.south west)!0.25!(latch.north west)$);
+    % To Latch E
+    \draw (Clk_bus) |- (latch.pin 3);
     
-    % To Pos FF C (South West input) - Dynamic indicator drawn inside
-    \draw [->] (Clk_bus) |- ($(pos_ff.south west)!0.25!(pos_ff.north west)$);
+    % To Pos FF C
+    \draw (Clk_bus) |- (pos_ff.pin 3);
     
-    % To Neg FF C (South West input) - Bubble drawn
-    % Connect to left of bubble
-    \draw [->] (Clk_bus) |- ($(neg_ff.south west)!0.25!(neg_ff.north west) + (-0.3,0)$);
-
+    % To Neg FF C
+    \draw (Clk_bus) |- (clk_inv.in);
 
     % Outputs
-    \draw [->] (latch.east) -- ++(1,0) node[right] {$Q_a$};
-    \draw [->] (pos_ff.east) -- ++(1,0) node[right] {$Q_b$};
-    \draw [->] (neg_ff.east) -- ++(1,0) node[right] {$Q_c$};
+    \draw (latch.pin 6) -- ++(1, 0) node[right] {$Q_a$};
+    \draw (pos_ff.pin 6) -- ++(1, 0) node[right] {$Q_b$};
+    \draw (neg_ff.pin 6) -- ++(1, 0) node[right] {$Q_c$};
 
-\end{tikzpicture}
+\end{circuitikz}
