@@ -1,0 +1,21 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{k}{LIBRARY}\PYG{+w}{ }\PYG{n+nn}{ieee}\PYG{p}{;}
+\PYG{k}{USE}\PYG{+w}{ }\PYG{n+nn}{ieee.std\PYGZus{}logic\PYGZus{}1164.}\PYG{k}{all}\PYG{p}{;}
+
+\PYG{k}{ENTITY}\PYG{+w}{ }\PYG{n+nc}{part1}\PYG{+w}{ }\PYG{k}{IS}
+\PYG{+w}{    }\PYG{k}{PORT}\PYG{+w}{ }\PYG{p}{(}\PYG{+w}{ }\PYG{n}{Clk}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{R}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{S}\PYG{+w}{ }\PYG{o}{:}\PYG{+w}{ }\PYG{k}{IN}\PYG{+w}{ }\PYG{k+kt}{STD\PYGZus{}LOGIC}\PYG{p}{;}
+\PYG{+w}{           }\PYG{n}{Q}\PYG{+w}{ }\PYG{o}{:}\PYG{+w}{ }\PYG{k}{OUT}\PYG{+w}{ }\PYG{k+kt}{STD\PYGZus{}LOGIC}\PYG{p}{)}\PYG{p}{;}
+\PYG{k}{END}\PYG{+w}{ }\PYG{n+nc}{part1}\PYG{p}{;}
+
+\PYG{k}{ARCHITECTURE}\PYG{+w}{ }\PYG{n+nc}{Structural}\PYG{+w}{ }\PYG{k}{OF}\PYG{+w}{ }\PYG{n+nc}{part1}\PYG{+w}{ }\PYG{k}{IS}
+\PYG{+w}{    }\PYG{k}{SIGNAL}\PYG{+w}{ }\PYG{n}{R\PYGZus{}g}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{S\PYGZus{}g}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{Qa}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{Qb}\PYG{+w}{ }\PYG{o}{:}\PYG{+w}{ }\PYG{k+kt}{STD\PYGZus{}LOGIC}\PYG{+w}{ }\PYG{p}{;}
+\PYG{+w}{    }\PYG{k}{ATTRIBUTE}\PYG{+w}{ }\PYG{n}{KEEP}\PYG{+w}{ }\PYG{o}{:}\PYG{+w}{ }\PYG{k+kt}{BOOLEAN}\PYG{p}{;}
+\PYG{+w}{    }\PYG{k}{ATTRIBUTE}\PYG{+w}{ }\PYG{n}{KEEP}\PYG{+w}{ }\PYG{k}{OF}\PYG{+w}{ }\PYG{n}{R\PYGZus{}g}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{S\PYGZus{}g}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{Qa}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{Qb}\PYG{+w}{ }\PYG{o}{:}\PYG{+w}{ }\PYG{k}{SIGNAL}\PYG{+w}{ }\PYG{k}{IS}\PYG{+w}{ }\PYG{n}{TRUE}\PYG{p}{;}
+\PYG{k}{BEGIN}
+\PYG{+w}{    }\PYG{n}{R\PYGZus{}g}\PYG{+w}{ }\PYG{o}{\PYGZlt{}}\PYG{o}{=}\PYG{+w}{ }\PYG{n}{R}\PYG{+w}{ }\PYG{k}{AND}\PYG{+w}{ }\PYG{n}{Clk}\PYG{p}{;}
+\PYG{+w}{    }\PYG{n}{S\PYGZus{}g}\PYG{+w}{ }\PYG{o}{\PYGZlt{}}\PYG{o}{=}\PYG{+w}{ }\PYG{n}{S}\PYG{+w}{ }\PYG{k}{AND}\PYG{+w}{ }\PYG{n}{Clk}\PYG{p}{;}
+\PYG{+w}{    }\PYG{n}{Qa}\PYG{+w}{ }\PYG{o}{\PYGZlt{}}\PYG{o}{=}\PYG{+w}{ }\PYG{k}{NOT}\PYG{+w}{ }\PYG{p}{(}\PYG{n}{R\PYGZus{}g}\PYG{+w}{ }\PYG{k}{OR}\PYG{+w}{ }\PYG{n}{Qb}\PYG{p}{)}\PYG{p}{;}
+\PYG{+w}{    }\PYG{n}{Qb}\PYG{+w}{ }\PYG{o}{\PYGZlt{}}\PYG{o}{=}\PYG{+w}{ }\PYG{k}{NOT}\PYG{+w}{ }\PYG{p}{(}\PYG{n}{S\PYGZus{}g}\PYG{+w}{ }\PYG{k}{OR}\PYG{+w}{ }\PYG{n}{Qa}\PYG{p}{)}\PYG{p}{;}
+\PYG{+w}{    }\PYG{n}{Q}\PYG{+w}{ }\PYG{o}{\PYGZlt{}}\PYG{o}{=}\PYG{+w}{ }\PYG{n}{Qa}\PYG{p}{;}
+\PYG{k}{END}\PYG{+w}{ }\PYG{n+nc}{Structural}\PYG{p}{;}
+\end{MintedVerbatim}

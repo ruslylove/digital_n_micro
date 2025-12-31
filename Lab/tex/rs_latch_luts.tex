@@ -1,0 +1,87 @@
+\begin{tikzpicture}[
+    lut/.style={draw, rectangle, minimum width=1.5cm, minimum height=2.2cm, align=center},
+    node distance=2cm,
+    >=latex
+]
+
+% Part (a): Single 4-LUT
+\node[lut] (lut1) at (0,0) {4-LUT};
+\node[above] at (lut1.north) {(a) Cost: 1 LE};
+
+% Inputs for (a)
+\node (clk_a) [left=1cm of lut1.west, yshift=0.5cm] {Clk};
+\node (r_a) [left=1cm of lut1.west] {R};
+\node (s_a) [left=1cm of lut1.west, yshift=-0.5cm] {S};
+
+\draw[->] (clk_a) -- (lut1.west |- clk_a.east);
+\draw[->] (r_a) -- (lut1.west |- r_a.east);
+\draw[->] (s_a) -- (lut1.west |- s_a.east);
+
+% Outputs for (a)
+\node (q_a) [right=1cm of lut1.east] {Q};
+\draw[->] (lut1.east) -- (q_a);
+
+% Feedback for (a)
+\draw (lut1.east) ++(0.5,0) coordinate (qa_tap_a);
+\fill (qa_tap_a) circle (2pt);
+\draw (qa_tap_a) -- ++(0,-1.5) -- ++(-3,0) |- ([yshift=-0.8cm]lut1.west);
+\node [left, font=\tiny] at ([yshift=-0.7cm]lut1.west) {};
+
+
+% Part (b): Four 4-LUTs
+% Positioning relative to (a)
+\begin{scope}[xshift=6cm, yshift=2cm]
+    \node at (2.5, 1) {(b) Cost: 4 LEs};
+
+    % LUTs for R_g and S_g
+    \node[lut, minimum height=1.5cm] (lut_rg) at (0, 0) {4-LUT \\ ($R\_g$)};
+    \node[lut, minimum height=1.5cm] (lut_sg) at (0, -4) {4-LUT \\ ($S\_g$)};
+
+    % Inputs for R_g and S_g
+    % Inputs for R_g and S_g
+    \node (r_b) [left=1cm of lut_rg.west, yshift=0.3cm] {R};
+    \node (s_b) [left=1cm of lut_sg.west, yshift=-0.3cm] {S};
+    
+    % Common Clock
+    \node (clk_common) at (-2.5, -2) {Clk};
+
+    \draw[->] (r_b) -- (lut_rg.west |- r_b.east);
+    \draw[->] (s_b) -- (lut_sg.west |- s_b.east);
+
+    % Clock connections
+    \draw (clk_common) -- (-1.5, -2);
+    \draw[->] (-1.5, -2) |- ([yshift=-0.3cm]lut_rg.west);
+    \draw[->] (-1.5, -2) |- ([yshift=0.3cm]lut_sg.west);
+
+    % LUTs for Qa and Qb
+    \node[lut, minimum height=1.5cm] (lut_qa) at (5, 0) {4-LUT \\ ($Q_a$)};
+    \node[lut, minimum height=1.5cm] (lut_qb) at (5, -4) {4-LUT \\ ($Q_b$)};
+
+    % Wiring R_g to Qa and S_g to Qb
+    \draw[->] (lut_rg.east) -- node[above] {$R\_g$} (lut_qa.west);
+    \draw[->] (lut_sg.east) -- node[below] {$S\_g$} (lut_qb.west);
+
+    % Cross-coupling
+    % Output Qa feeds back to Qb
+    % Output Qb feeds back to Qa
+    
+    % Outputs
+    \node (qa_out) [right=1cm of lut_qa.east] {Q};
+    \draw[->] (lut_qa.east) -- (qa_out);
+    \node (qb_out) [right=1cm of lut_qb.east] {$Q_b$};
+    \draw[->] (lut_qb.east) -- (qb_out);
+
+    % Feedback connections
+    % From Qa output to Qb input
+    \draw (lut_qa.east) ++(0.5,0) coordinate (qa_tap);
+    \fill (qa_tap) circle (2pt);
+    \draw (qa_tap) -- ++(0,-1.5) -- ++(-4,0) |- ([yshift=0.3cm]lut_qb.west);
+
+    % From Qb output to Qa input
+    \draw (lut_qb.east) ++(0.5,0) coordinate (qb_tap);
+    \fill (qb_tap) circle (2pt);
+    \draw (qb_tap) -- ++(0,1.5) -- ++(-4.5,0) |- ([yshift=-0.3cm]lut_qa.west);
+
+\end{scope}
+
+\end{tikzpicture}

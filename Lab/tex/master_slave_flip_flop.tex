@@ -1,0 +1,54 @@
+\begin{tikzpicture}[
+    ieee symbol/.style = {draw, rectangle, minimum height=4em, minimum width=3.5em, align=center, thick},
+    input/.style = {coordinate},
+    output/.style = {coordinate}
+]
+    % Master Latch (D Latch Symbol)
+    \node [ieee symbol] (master) {};
+    % Internal Labels
+    \node[anchor=north west] at (master.north west) {\scriptsize D};
+    \node[anchor=south west] at (master.south west) {\scriptsize E}; % Enable for Latch
+    \node[anchor=north east] at (master.north east) {\scriptsize Q};
+    \node[anchor=south east] at (master.south east) {\scriptsize $\bar{Q}$};
+
+    % Slave Latch (D Latch Symbol)
+    \node [ieee symbol, right=3.5cm of master] (slave) {};
+    % Internal Labels
+    \node[anchor=north west] at (slave.north west) {\scriptsize D};
+    \node[anchor=south west] at (slave.south west) {\scriptsize E};
+    \node[anchor=north east] at (slave.north east) {\scriptsize Q};
+    \node[anchor=south east] at (slave.south east) {\scriptsize $\bar{Q}$};
+
+    % External Labels indicating Master/Slave roles
+    \node[above=0.2cm of master] {\small Master};
+    \node[above=0.2cm of slave] {\small Slave};
+
+    % Inputs
+    \node [input, left=2cm of master.north west] (D_in) {};
+    \node [input, below=1.5cm of master] (Clk_in) {};
+
+    % Logic Gate (Inverter)
+    \node [not gate US, draw, rotate=0] (not_gate) at ($(master.south west) + (-1.0, -0.5)$) {};
+
+    % Connections
+    % D to Master D
+    \draw [->] (D_in) node[left] {D} -- ($(D_in)+(1,0)$) |- ($(master.north west)!0.25!(master.south west)$);
+
+    % Master Q to Slave D
+    \draw [->] ($(master.north east)!0.25!(master.south east)$) -- node[above] {$Q_m$} ($(slave.north west)!0.25!(slave.south west)$);
+
+    % Clock Distribution
+    \draw (Clk_in) node[left] {Clock} -- ++(1,0) coordinate (clk_split);
+    
+    % Clock to Inverter to Master En (Inverted Clock)
+    \draw (clk_split) |- (not_gate.input);
+    \draw [->] (not_gate.output) |- ($(master.south west)!0.25!(master.north west)$);
+
+    % Clock to Slave En (Direct Clock)
+    \draw [->] (clk_split) -- ++(4.5,0) |- ($(slave.south west)!0.25!(slave.north west)$);
+
+    % Final Outputs
+    \draw [->] ($(slave.north east)!0.25!(slave.south east)$) -- ++(1,0) node[right] {$Q$};
+    \draw [->] ($(slave.south east)!0.25!(slave.north east)$) -- ++(1,0) node[right] {$\bar{Q}$};
+
+\end{tikzpicture}

@@ -1,0 +1,77 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{minted}
+\usepackage{tikz}
+\usetikzlibrary{shapes, arrows, calc, positioning, circuits.logic.US, circuits.logic.IEC}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{hyperref}
+\usemintedstyle{trac}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\small 010153101 Digital Circuit and Microprocessor Fundamental \\ Semester 2/2025}
+\fancyfoot[R]{\thepage}
+
+% Redefine plain style to match fancy style (for the title page)
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyfoot[C]{\small 010153101 Digital Circuit and Microprocessor Fundamental \\ Semester 2/2025}%
+  \fancyfoot[R]{\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+}
+
+\title{Laboratory Exercise 5 - Week 2 \\ Registers and Applications}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+The purpose of this exercise is to investigate latches, flip-flops, and registers. This second week focuses on advanced storage elements and their applications.
+
+\setcounter{figure}{6}
+
+\section*{Part IV}
+
+Figure 7 shows a circuit with three different storage elements: a gated D latch, a positive-edge triggered D flip-flop, and a negative-edge triggered D flip-flop.
+
+\begin{figure}[H]
+    \centering
+    % Placeholder for Figure 7: Three storage elements
+    \input{tex/three_storage_elements.tex}
+    \caption{Circuit and waveforms for Part IV.}
+    \label{fig:three_storage}
+\end{figure}
+
+Implement and simulate this circuit using the Quartus software as follows:
+\begin{enumerate}
+    \item Create a new Quartus project.
+    \item \textbf{First, implement the circuit using Schematic Design.} Draw the circuit using the Block Editor.
+    \item Compile the schematic design and perform a functional simulation to verify its correctness.
+    \item \textbf{Next, implement the circuit using Structural VHDL Design.}
+    \item Write a VHDL file that instantiates the three storage elements. For this part you should no longer use the KEEP directive.
+    \item Compile your code and use the Technology Map Viewer to examine the implemented circuit. Verify that the latch uses one lookup table and that the flip-flops are implemented using the flip-flops provided in the target FPGA.
+    \item Create a Vector Waveform File (.vwf) that specifies the inputs and outputs of the circuit. Draw the inputs D and Clock as indicated in Figure 7. Use functional simulation to obtain the three output signals. Observe the different behavior of the three storage elements.
+\end{enumerate}
+
+\section*{Part V}
+
+We wish to display the hexadecimal value of an 8-bit number A on the two 7-segment displays HEX3-2. We also wish to display the hex value of an 8-bit number B on the two 7-segment displays HEX1-0. The values of A and B are inputs to the circuit which are provided by means of switches SW7-0. To input the values of A and B, first set the switches to the desired value of A, store these switch values in a register, and then change the switches to the desired value of B. Finally, use an adder to generate the arithmetic sum S = A + B, and display this sum on the 7-segment displays HEX5-4. Show the carry-out produced by the adder on LEDR(0).
+
+\begin{enumerate}
+    \item Create a new Quartus project which will be used to implement the desired circuit on your DE-series board.
+    \item \textbf{First, implement the circuit using Schematic Design.} Draw the circuit using the Block Editor.
+    \item Compile the schematic design and perform a functional simulation to verify its correctness.
+    \item \textbf{Next, implement the circuit using Structural VHDL Design.}
+    \item Write a VHDL file that provides the necessary functionality. Use KEY0 as an active-low asynchronous reset, and use KEY1 as a clock input.
+    \item Include the necessary pin assignments for the pushbutton switches and 7-segment displays, and then compile the circuit.
+    \item Download the circuit onto your DE-series board and test its functionality by toggling the switches and observing the output displays.
+\end{enumerate}
+
+\end{document}

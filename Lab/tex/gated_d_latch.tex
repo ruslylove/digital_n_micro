@@ -1,0 +1,58 @@
+\begin{tikzpicture}[circuit logic US, huge circuit symbols]
+    % Gates
+    \node[and gate, inputs={nn}] (A1) at (0, 1.5) {};
+    \node[and gate, inputs={nn}] (A2) at (0, -1.5) {};
+    \node[nor gate, inputs={nn}, anchor=input 1] (O1) at ($(A1.output) + (2, 0)$) {};
+    \node[nor gate, inputs={nn}, anchor=input 2] (O2) at ($(A2.output) + (2, 0)$) {};
+    \node[not gate, scale=0.5, anchor=output] (N1) at ($(A1.input 1) + (-1.5, 0)$) {}; % Aligned with A1.input 1
+
+    % Labels for internal signals (removed explicit nodes, added to paths below)
+
+    % D Input
+    \draw (N1.input) -- ++(-0.5,0) node[left] {$D$} coordinate (D_in);
+    \draw (N1.output) -- (A1.input 1); % D_bar to R input is now horizontal
+
+    % Connect D to S input (bottom AND)
+    \draw (D_in) -- ++(0.25,0) coordinate (D_split);
+    \fill (D_split) circle (2pt); % Connection dot for D split
+    \draw (D_split) |- (A2.input 2);
+
+    % Clock connection
+    \draw (A1.input 2) -- ++(-0.5,0) coordinate (clk_top);
+    \draw (A2.input 1) -- ++(-0.5,0) coordinate (clk_bot);
+    \draw (clk_top) -- (clk_bot);
+    \draw ($(clk_top)!0.5!(clk_bot)$) coordinate (clk_mid);
+    \fill (clk_mid) circle (2pt);
+    \draw (clk_mid) -- ++(-1,0) node[left] {$Clk$};
+
+    % Connections to NOR latch
+    \draw (A1.output) -- node[above] {$R_g$} (O1.input 1);
+    \draw (A2.output) -- node[below] {$S_g$} (O2.input 2);
+
+    % Latch feedback
+    \draw (O1.input 2) -- ++(-0.5, 0) coordinate (O1_fb_in);
+    \draw (O2.input 1) -- ++(-0.5, 0) coordinate (O2_fb_in);
+
+    % Feedback paths
+    \draw (O1.output) -- ++(0.5,0) coordinate (Qa_out);
+    \fill (Qa_out) circle (2pt);
+    
+    \draw (O2.output) -- ++(0.5,0) coordinate (Qb_out);
+    \fill (Qb_out) circle (2pt);
+
+    % Cross routing
+    % Define intermediate points to avoid syntax errors
+    \path (O2_fb_in) ++(-0,0.5) coordinate (O2_cross_x);
+    \path (O1_fb_in) ++(-0,-0.5) coordinate (O1_cross_x);
+
+    % Qa (Top) -> Bottom Input (O2)
+    \draw (Qa_out) -- ++(0,-0.5) coordinate (Qa_drop) -- (O2_cross_x) -- (O2_fb_in);
+    
+    % Qb (Bottom) -> Top Input (O1)
+    \draw (Qb_out) -- ++(0,0.5) coordinate (Qb_drop) -- (O1_cross_x) -- (O1_fb_in);
+
+    % Outputs
+    \draw (Qa_out) -- ++(1,0) node[right] {$Q_a (Q)$};
+    \draw (Qb_out) -- ++(1,0) node[right] {$Q_b$};
+
+\end{tikzpicture}
