@@ -5,15 +5,15 @@ class: text-center
 highlighter: shiki
 lineNumbers: false
 info: |
-  ## Lab 5: Latches, Flip-flops, and Registers
+  ## Lab 6: Latches, Flip-flops, and Registers
   Digital Circuit and Microprocessor Fundamental
 drawings:
   persist: false
 transition: slide-left
-title: Lab 5 - Latches and Flip-flops
+title: Lab 6 - Latches and Flip-flops
 ---
 
-# Laboratory Exercise 5
+# Laboratory Exercise 6
 ## Latches, Flip-flops, and Registers
 
 Digital Circuit and Microprocessor Fundamental
@@ -115,7 +115,7 @@ END Structural;
 
 # Part I: Instructions
 
-1. Create a Quartus project for your DE-series board.
+1. Create a Quartus project for your DE0-CV board.
 2. **Schematic Design:** Implement the circuit using the Block Editor. Verify with functional simulation.
 3. **Structural VHDL:** Implement using the code provided.
    - Use `KEEP` attribute.

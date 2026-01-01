@@ -1,0 +1,57 @@
+\begin{circuitikz}
+    \ctikzset{logic ports=ieee}
+    \ctikzset{flipflops/scale=1}
+
+    % Define Styles
+    % Latch: Transparent high (no clock wedge)
+    \tikzset{latch/.style={flipflop, flipflop def={t1=D, t3=Clk, t6=Q}}} 
+    % Pos-Edge FF: Standard D FF with clock wedge
+    \tikzset{pos-ff/.style={flipflop D, flipflop def={t6=Q}}}
+    % Neg-Edge FF: Standard D FF with clock wedge and negation
+    \tikzset{neg-ff/.style={flipflop D, flipflop def={t6=Q, n3=1}}}
+
+    % Nodes
+    % 1. Gated D Latch
+    \node[latch] (latch) at (0, 0) {};
+    \node[above] at (latch.north) {Gated D Latch};
+
+    % 2. Pos-Edge D FF
+    \node[pos-ff] (pos_ff) at (0, -3.5) {};
+    \node[above] at (pos_ff.north) {Pos-Edge D FF};
+
+    % 3. Neg-Edge D FF
+    \node[neg-ff] (neg_ff) at (0, -7) {};
+    \node[above] at (neg_ff.north) {Neg-Edge D FF};
+
+    % Inputs aligned to latch
+    % D connected to Latch Pin 1 (D)
+    % Clock connected to Latch Pin 3 (Clk)
+    \coordinate (D_pin) at (latch.pin 1);
+    \coordinate (Clk_pin) at (latch.pin 3);
+    
+    \draw (D_pin) -- ++(-3, 0) node[left] (D_in) {D};
+    \draw (Clk_pin) -- ++(-3, 0) node[left] (Clk_in) {Clock};
+
+    % Bus Lines
+    % Vertical bus for D
+    \coordinate (D_bus_top) at ($(D_in.east) + (0.5, 0)$);
+    \draw (D_bus_top) |- (pos_ff.pin 1);
+    \draw (D_bus_top) |- (neg_ff.pin 1);
+    \draw (D_bus_top) -- (D_pin); % Connect to latch D
+    \fill[black] (D_bus_top) circle (2pt);
+    \fill[black] (D_bus_top |- pos_ff.pin 1) circle (2pt);
+
+    % Vertical bus for Clock
+    \coordinate (Clk_bus_top) at ($(Clk_in.east) + (1.0, 0)$);
+    \draw (Clk_bus_top) |- (pos_ff.pin 3);
+    \draw (Clk_bus_top) |- (neg_ff.pin 3);
+    \draw (Clk_bus_top) -- (Clk_pin); % Connect to latch Clk
+    \fill[black] (Clk_bus_top) circle (2pt);
+    \fill[black] (Clk_bus_top |- pos_ff.pin 3) circle (2pt);
+
+    % Outputs
+    \draw (latch.pin 6) -- ++(1, 0) node[right] {$Q_a$};
+    \draw (pos_ff.pin 6) -- ++(1, 0) node[right] {$Q_b$};
+    \draw (neg_ff.pin 6) -- ++(1, 0) node[right] {$Q_c$};
+
+\end{circuitikz}

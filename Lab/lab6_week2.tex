@@ -27,7 +27,8 @@
   \renewcommand{\headrulewidth}{0pt}%
 }
 
-\title{Laboratory Exercise 5 - Week 2 \\ Registers and Applications}
+\title{Laboratory Exercise 6 - Week 2 \\ Registers and Applications}
+\author{}
 \date{}
 
 \begin{document}
@@ -45,14 +46,14 @@ Figure 7 shows a circuit with three different storage elements: a gated D latch,
 \begin{figure}[H]
     \centering
     % Placeholder for Figure 7: Three storage elements
-    \input{tex/three_storage_elements.tex}
+    \input{tex/lab6p4_three_storage_elements.tex}
     \caption{Circuit for Part IV.}
     \label{fig:three_storage}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \input{tex/three_storage_elements_timing.tex}
+    \input{tex/lab6p4_three_storage_elements_timing.tex}
     \caption{Waveforms for Part IV.}
     \label{fig:three_storage_timing}
 \end{figure}
@@ -68,18 +69,115 @@ Implement and simulate this circuit using the Quartus software as follows:
     \item Create a Vector Waveform File (.vwf) that specifies the inputs and outputs of the circuit. Draw the inputs D and Clock as indicated in Figure 7. Use functional simulation to obtain the three output signals. Observe the different behavior of the three storage elements.
 \end{enumerate}
 
+\begin{figure}[H]
+    \centering
+    \begin{minted}[frame=single, fontsize=\small, linenos]{vhdl}
+LIBRARY ieee;
+USE ieee.std_logic_1164.all;
+
+ENTITY d_latch IS
+    PORT ( D, Clk : IN STD_LOGIC;
+           Q : OUT STD_LOGIC);
+END d_latch;
+
+ARCHITECTURE Behavior OF d_latch IS
+BEGIN
+    PROCESS ( D, Clk )
+    BEGIN
+        IF Clk = '1' THEN
+            Q <= D;
+        END IF;
+    END PROCESS;
+END Behavior;
+
+LIBRARY ieee;
+USE ieee.std_logic_1164.all;
+
+ENTITY pos_edge_d_ff IS
+    PORT ( D, Clk : IN STD_LOGIC;
+           Q : OUT STD_LOGIC);
+END pos_edge_d_ff;
+
+ARCHITECTURE Behavior OF pos_edge_d_ff IS
+BEGIN
+    PROCESS ( Clk )
+    BEGIN
+        IF RISING_EDGE(Clk) THEN
+            Q <= D;
+        END IF;
+    END PROCESS;
+END Behavior;
+
+LIBRARY ieee;
+USE ieee.std_logic_1164.all;
+
+ENTITY neg_edge_d_ff IS
+    PORT ( D, Clk : IN STD_LOGIC;
+           Q : OUT STD_LOGIC);
+END neg_edge_d_ff;
+
+ARCHITECTURE Behavior OF neg_edge_d_ff IS
+BEGIN
+    PROCESS ( Clk )
+    BEGIN
+        IF FALLING_EDGE(Clk) THEN
+            Q <= D;
+        END IF;
+    END PROCESS;
+END Behavior;
+    \end{minted}
+    \caption{VHDL code for the D latch and D flip-flops.}
+    \label{fig:vhdl_storage}
+\end{figure}
+
 \section*{Part V}
 
 We wish to display the hexadecimal value of an 8-bit number A on the two 7-segment displays HEX3-2. We also wish to display the hex value of an 8-bit number B on the two 7-segment displays HEX1-0. The values of A and B are inputs to the circuit which are provided by means of switches SW7-0. To input the values of A and B, first set the switches to the desired value of A, store these switch values in a register, and then change the switches to the desired value of B. Finally, use an adder to generate the arithmetic sum S = A + B, and display this sum on the 7-segment displays HEX5-4. Show the carry-out produced by the adder on LEDR(0).
 
+\begin{figure}[H]
+    \centering
+    \input{tex/lab6p5_block_diagram.tex}
+    \caption{Block diagram for Part V.}
+    \label{fig:part5_block_diagram}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{minted}[frame=single, fontsize=\small, linenos]{vhdl}
+LIBRARY ieee;
+USE ieee.std_logic_1164.all;
+
+ENTITY reg8 IS
+    PORT ( D : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+           Resetn, Clock : IN STD_LOGIC;
+           Q : OUT STD_LOGIC_VECTOR(7 DOWNTO 0));
+END reg8;
+
+ARCHITECTURE Behavior OF reg8 IS
+BEGIN
+    PROCESS ( Resetn, Clock )
+    BEGIN
+        IF Resetn = '0' THEN
+            Q <= (OTHERS => '0');
+        ELSIF RISING_EDGE(Clock) THEN
+            Q <= D;
+        END IF;
+    END PROCESS;
+END Behavior;
+    \end{minted}
+    \caption{VHDL code for an 8-bit register with asynchronous reset.}
+    \label{fig:vhdl_reg8}
+\end{figure}
+
 \begin{enumerate}
-    \item Create a new Quartus project which will be used to implement the desired circuit on your DE-series board.
-    \item \textbf{First, implement the circuit using Schematic Design.} Draw the circuit using the Block Editor.
-    \item Compile the schematic design and perform a functional simulation to verify its correctness.
-    \item \textbf{Next, implement the circuit using Structural VHDL Design.}
-    \item Write a VHDL file that provides the necessary functionality. Use KEY0 as an active-low asynchronous reset, and use KEY1 as a clock input.
+    \item Create a new Quartus project which will be used to implement the desired circuit on your DE0-CV board.
+    \item \textbf{Implement the circuit using Structural VHDL Design.} Write a VHDL file that provides the necessary functionality. Use KEY0 as an active-low asynchronous reset, and use KEY1 as a clock input.
     \item Include the necessary pin assignments for the pushbutton switches and 7-segment displays, and then compile the circuit.
-    \item Download the circuit onto your DE-series board and test its functionality by toggling the switches and observing the output displays.
+    \item Download the circuit onto your DE0-CV board and test its functionality by toggling the switches and observing the output displays.
 \end{enumerate}
+
+\vspace{1cm}
+\noindent \textbf{Updated By:} R. Sutthaweekul \\
+\textbf{Release Date:} 2026-01-01
 
 \end{document}

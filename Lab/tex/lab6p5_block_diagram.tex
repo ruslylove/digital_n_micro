@@ -1,0 +1,63 @@
+\begin{tikzpicture}[
+    auto,
+    node distance=2.5cm,
+    block/.style={rectangle, draw, fill=blue!10, text width=2.5cm, text centered, rounded corners, minimum height=1.5cm},
+    decoder/.style={rectangle, draw, fill=green!10, text width=2cm, text centered, rounded corners, minimum height=1cm},
+    line/.style={draw, -latex, thick},
+    bus/.style={draw, -latex, thick, double, double distance=1pt}
+]
+
+    % Nodes
+    % Inputs on the left
+    \node (sw) [draw, rectangle, fill=gray!20, minimum width=2cm, minimum height=1cm] {SW[7:0]};
+    \node [draw, rectangle, fill=gray!20, minimum width=2cm, minimum height=1cm, below of=sw, node distance=2cm] (key1) {KEY1 (Clock)};
+    \node [draw, rectangle, fill=gray!20, minimum width=2cm, minimum height=1cm, below of=key1, node distance=1.5cm] (key0) {KEY0 (Reset)};
+    
+    % Main Data Path - Increased distances
+    \node [block, right of=sw, node distance=5cm] (reg) {8-bit Register A};
+    \node [block, right of=reg, node distance=6cm] (adder) {8-bit Adder};
+    
+    % Decoders
+    \node [decoder, above of=reg, node distance=2.5cm] (decA) {2 $\times$ 7-Seg Decoders};
+    \node [decoder, above of=sw, node distance=2.5cm] (decB) {2 $\times$ 7-Seg Decoders};
+    \node [decoder, above of=adder, node distance=2.5cm] (decSum) {2 $\times$ 7-Seg Decoders};
+
+    % Displays (represented as groups) - Increased vertical distance
+    \node [draw, rectangle, dashed, above of=decA, node distance=2cm] (hexA) {HEX3-2 (Display A)};
+    \node [draw, rectangle, dashed, above of=decB, node distance=2cm] (hexB) {HEX1-0 (Display B)};
+    \node [draw, rectangle, dashed, above of=decSum, node distance=2cm] (hexSum) {HEX5-4 (Display Sum)};
+    \node [draw, rectangle, dashed, right of=hexSum, node distance=3.5cm] (led) {LEDR0 (Cout)};
+
+    % Connections
+    % SW to Register
+    \draw [bus] (sw) -- node {A} (reg);
+    
+    % SW to Adder (B input) - Needs to bypass Register
+    % Route under the register with clear clearance
+    \draw [bus] (sw.south) -- ++(0, -0.7) coordinate (bypass) -- (bypass -| adder.south) -- (adder.south);
+    \node at (bypass -| reg) [below=0.2cm] {B (SW[7:0])};
+
+    % Register to Adder
+    \draw [bus] (reg) -- node {A (Stored)} (adder);
+    
+    % Register to Decoder A to Display A
+    \draw [bus] (reg.north) -- (decA.south);
+    \draw [bus] (decA.north) -- (hexA.south);
+    
+    % SW to Decoder B to Display B
+    \draw [bus] (sw.north) -- (decB.south);
+    \draw [bus] (decB.north) -- (hexB.south);
+    
+    % Adder to Decoder Sum to Display Sum
+    \draw [bus] (adder.north) -- (decSum.south);
+    \draw [bus] (decSum.north) -- (hexSum.south);
+    
+    % Adder to LED
+    \draw [line] (adder.east) -| (led.south);
+
+    % Control connections
+    % Route from left side inputs to Register
+    \draw [line] (key1.east) -- ++(0.5, 0) |- ($(reg.west) + (0, -0.3)$);
+    \draw [line] (key0.east) -- ++(1.0, 0) |- ($(reg.west) + (0, -0.6)$); % Reset to bottom of register
+
+\end{tikzpicture}
