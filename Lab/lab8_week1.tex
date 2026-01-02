@@ -1,0 +1,135 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{minted}
+\usepackage{circuitikz}
+\usepackage{tikz}
+\usetikzlibrary{shapes, arrows, calc, positioning, circuits.logic.US, circuits.logic.IEC}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{hyperref}
+\usemintedstyle{trac}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\small 010153101 Digital Circuit and Microprocessor Fundamental \\ Semester 2/2025}
+\fancyfoot[R]{\thepage}
+
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyfoot[C]{\small 010153101 Digital Circuit and Microprocessor Fundamental \\ Semester 2/2025}%
+  \fancyfoot[R]{\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+}
+
+\title{Laboratory Exercise 8 \\ Dedicated Microprocessor}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+The purpose of this exercise is to build and use Datapath and finite state machine. The designed circuits are to be implemented on an Altera DE0-CV, DE1-SoC, or DE2-115 Board.
+Students are expected to have a basic understanding of combinational and sequential component and sufficient familiarity with the VHDL hardware description language.
+
+\section*{Part I}
+
+From the algorithm shown in Figure \ref{fig:algorithm} below, we see that there are three data manipulation instructions: lines 1, 3, and 4. Line 2 is not a data manipulation statement, but rather, it is a control statement.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.45\textwidth}
+        \textbf{Pseudo-code:}
+        \begin{verbatim}
+1: i = 0
+2: while (i != 10) {
+3:    i = i + 1
+4:    output i
+   }
+        \end{verbatim}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \resizebox{\textwidth}{!}{\input{tex/lab8p1_algorithm.tex}}
+    \end{minipage}
+    \caption{Algorithm for counting 1 to 10.}
+    \label{fig:algorithm}
+\end{figure}
+
+We have derived the three corresponding control words for these three data manipulation instructions for controlling the dedicated datapath shown in Figure \ref{fig:datapath}. These three control words are shown here in Figure \ref{fig:control_words}.
+
+\begin{figure}[H]
+    \centering
+    \resizebox{0.8\textwidth}{!}{\input{tex/lab8p1_datapath.tex}}
+    \caption{Dedicated data path for counting 1 to 10.}
+    \label{fig:datapath}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \input{tex/lab8p1_control_words.tex}
+    \caption{Control words for counting 1 to 10.}
+    \label{fig:control_words}
+\end{figure}
+
+You are to implement a dedicated datapath for counting 1 to 10.
+
+\begin{enumerate}
+    \item Write a VHDL file that defines a datapath using the structured depicted in Figure \ref{fig:datapath}. Your code should include a 4-bit adder, 4-bit register with load and clear, a 4-bit comparator and a quad tri-state buffer. Compile the circuit. How many logic elements (LEs) are used to implement your circuit?
+    \item Simulate your circuit to verify its correctness.
+    \item Augment your VHDL file to use the pushbutton KEY0 as the Clock input and switches SW2, SW1 and SW0 as iLoad, Clear and Out inputs, LED3 to LED0 to display binary representing the 1 to 10 counts as your circuit operates, and LEDR9 to display the condition ($i \neq 10$). Make the necessary pin assignments needed to implement the circuit on your DE-series board and compile the circuit.
+    \item Download your circuit into the FPGA chip and test its functionality by operating the implemented switches.
+\end{enumerate}
+
+\section*{Part II}
+
+The state diagram of control unit is derived as shown in Figure \ref{fig:fsm}.
+
+\begin{figure}[H]
+    \centering
+    \input{tex/lab8p2_fsm.tex}
+    \caption{State diagram of control unit for counting 1 to 10.}
+    \label{fig:fsm}
+\end{figure}
+
+You are to implement a control unit that cooperate with the dedicated datapath.
+
+\begin{enumerate}
+    \item Write a VHDL file that defines a finite state machine (FSM) depicted in Figure \ref{fig:fsm}. Your code should include a state variable that hold the current state (s0...s3), a reset input to initialize the state to s0 and the control signals (iLoad, Clear and Out) as outputs to the datapath. Compile the circuit. How many logic elements (LEs) are used to implement your circuit?
+    \item Simulate your circuit to verify its correctness.
+    \item Augment your VHDL file to use the pushbutton KEY0 as the Clock input and switches SW1 and SW0 as Reset and ($i \neq 10$) inputs, and three LEDR2-0 to display iLoad, Clear and Out as your circuit operates. Make the necessary pin assignments needed to implement the circuit on your DE-series board and compile the circuit.
+    \item Download your circuit into the FPGA chip and test its functionality by operating the implemented switches.
+\end{enumerate}
+
+\section*{Part III}
+
+The dedicated microprocessor consisting of a Control unit and a Datapath shown in Figure \ref{fig:microprocessor}.
+
+\begin{figure}[H]
+    \centering
+    \resizebox{\textwidth}{!}{\input{tex/lab8p3_microprocessor.tex}}
+    \caption{Dedicated microprocessor for counting 1 to 10.}
+    \label{fig:microprocessor}
+\end{figure}
+
+You are to implement a dedicated microprocessor by assembling the Control unit and Datapath.
+
+\begin{enumerate}
+    \item Write a VHDL file that defines component circuit (created in Part I and Part II), depicted in Figure \ref{fig:microprocessor}. Modify the control unit to be able to operate with system internal clock (use a counter to transform 50 MHz to 1 Hz trigger or clock signal with period of 1 second). Compile the circuit. How many logic elements (LEs) are used to implement your circuit?
+    \item Simulate your circuit to verify its correctness.
+    \item Augment your VHDL file to use a pushbutton KEY0 as Reset, and a 7-segment display HEX0 to display the 1 to 10 (‘A’) count as your circuit operates. Note that the datapath output bus is tri-stated. To drive the 7-segment display correctly, you must capture the output value when the `Out` signal is active. Instantiate an intermediate register (enabled by `Out`) between the datapath bus and the 7-segment decoder to hold the value when the bus is in the high-impedance state. Make the necessary pin assignments needed to implement the circuit on your DE-series board and compile the circuit.
+    \item Download your circuit into the FPGA chip and test its functionality by operating the implemented switches.
+    \item What is the frequency of the display updates? What to modify if you want to make it changes exactly 1 Hz?
+\end{enumerate}
+
+\vspace{1cm}
+\noindent \textbf{Updated By:} R. Sutthaweekul \\
+\textbf{Release Date:} 2026-01-02
+
+\end{document}

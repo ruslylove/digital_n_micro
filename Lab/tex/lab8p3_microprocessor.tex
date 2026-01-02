@@ -1,0 +1,60 @@
+\begin{tikzpicture}[
+    font=\sffamily,
+    >=Latex,
+    thick,
+    block/.style={draw, rectangle, minimum width=2.5cm, minimum height=3.5cm, align=center, fill=white},
+    sblock/.style={draw, rectangle, minimum width=2.2cm, minimum height=1.5cm, align=center, fill=white}, 
+    signal/.style={->}
+]
+
+    % Components
+    \node [block] (Control) at (0,0) {Control\\Unit};
+    \node [block, right=3cm of Control] (Datapath) {Datapath};
+    \node [sblock, above left=1cm of Control] (FreqDiv) {Frequency\\Divider};
+    \node [sblock, right=1.5cm of Datapath] (OutReg) {Output\\Register};
+
+    % 1. Clock System
+    % Input 50MHz to FreqDiv
+    \draw [signal] ($(FreqDiv.west) + (-1, 0)$) node[left] {50MHz} -- (FreqDiv.west);
+    
+    % System Clock distribution
+    % Run a bus along the top
+    \coordinate (clk_bus_y) at (2.5, 2.5); % High above blocks (y=1.75 is top)
+    \draw [-] (FreqDiv.east) -- ++(0.2, 0) coordinate (clk_bus_start); % Up to y=~2.0
+    \draw [-] (clk_bus_start) -- (OutReg|-clk_bus_start) coordinate (clk_bus_end);
+    \node [above] at ($(clk_bus_start)!0.1!(clk_bus_end)$) {Clk 1Hz};
+
+    % Drop downs
+    \draw [signal] (Control|-clk_bus_start) to[short,*-] (Control.north);
+    \draw [signal] (Datapath|-clk_bus_start) to[short,*-] (Datapath.north);
+    \draw [signal] (OutReg|-clk_bus_start) -- (OutReg.north);
+
+    % 2. External Inputs (Control)
+    \draw [signal] ($(Control.west) + (-1, 1)$) node[left] {Start} -- ($(Control.west) + (0, 1)$);
+    \draw [signal] ($(Control.west) + (-1, -1)$) node[left] {Reset} -- ($(Control.west) + (0, -1)$);
+
+    % 3. Control Signals (Control -> Datapath)
+    \draw [signal] ($(Control.east) + (0, 1)$) -- node[above, font=\small] {iLoad} ($(Datapath.west) + (0, 1)$);
+    \draw [signal] ($(Control.east) + (0, 0)$) -- node[above, font=\small] {Clear} ($(Datapath.west) + (0, 0)$);
+    
+    % Out Signal & Overlap Fix
+    % Out comes from Control y=-1.
+    % Route to Datapath straight.
+    \draw [signal] ($(Control.east) + (0, -1)$) -- node[above, font=\small] {Out} coordinate[pos=0.8] (out_tap) ($(Datapath.west) + (0, -1)$);
+    
+    % Tap to OutReg En
+    % Go DOWN deep to avoid i!=10
+    \draw node[circ] at (out_tap) {};
+    \draw [->] (out_tap) |- ($(Datapath.south) + (0, -0.8)$) -| (OutReg.south);
+    \node [right, font=\small, yshift=-0.2cm] at (OutReg.south) {En};
+
+    % 4. Status Signal (Datapath -> Control)
+    % i != 10
+    % Route slightly lower than straight to differentiate, but above the Out bypass
+    \draw [signal] ($(Datapath.west) + (0, -1.5)$) -- node[below, font=\small] {$i \neq 10$} ($(Control.east) + (0, -1.5)$);
+    
+    % 5. Data Flow
+    \draw [signal] ($(Datapath.east) + (0, 0)$) -- node[above, font=\footnotesize] {Bus} (OutReg.west);
+    \draw [signal] (OutReg.east) -- ++(1.2, 0) node[right] {Display};
+
+\end{tikzpicture}

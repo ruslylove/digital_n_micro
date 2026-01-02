@@ -1,0 +1,24 @@
+\begin{tikzpicture}[auto, node distance=1.5cm, >=latex]
+
+    % Define styles
+    \tikzstyle{startstop} = [rectangle, rounded corners, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=white]
+    \tikzstyle{process} = [rectangle, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=white]
+    \tikzstyle{decision} = [diamond, minimum width=3cm, minimum height=1cm, text centered, draw=black, fill=white]
+
+    % Nodes
+    \node (start) [startstop] {Start};
+    \node (init) [process, below of=start] {$i = 0$};
+    \node (cond) [decision, below of=init, yshift=-0.5cm] {$i \neq 10$};
+    \node (inc) [process, below of=cond, yshift=-0.5cm] {$i = i + 1$};
+    \node (out) [process, below of=inc] {output $i$};
+    \node (end) [startstop, right of=cond, xshift=3cm] {End};
+
+    % Arrows
+    \draw [->, thick] (start) -- (init);
+    \draw [->, thick] (init) -- (cond);
+    \draw [->, thick] (cond) -- node[anchor=east] {True} (inc);
+    \draw [->, thick] (inc) -- (out);
+    \draw [->, thick] (out.west) -- ++(-1,0) |- (cond.west);
+    \draw [->, thick] (cond) -- node[anchor=south] {False} (end);
+
+\end{tikzpicture}

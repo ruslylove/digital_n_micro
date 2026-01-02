@@ -1,0 +1,32 @@
+
+\begin{tikzpicture}[>=Latex, auto, node distance=2.5cm, thick]
+    % Define state style locally
+    \tikzstyle{state} = [circle, draw, minimum size=1.2cm, align=center]
+    
+    % States
+    \node[state] (S0) {S0\\(Init)};
+    \node[state, right of=S0] (S1) {S1\\(Inc)};
+    \node[state, right of=S1] (S2) {S2\\(Out)};
+    \node[state, below of=S2] (Halt) {S3\\(Halt)};
+
+    % Transitions
+    % Start -> S0
+    \draw[->] ($(S0.west) + (-1,0)$) -- node[above] {Start} (S0);
+    
+    % S0 -> S1 (Unconditional)
+    \draw[->] (S0) -- (S1);
+    
+    % S1 -> S2 (Unconditional)
+    \draw[->] (S1) -- (S2);
+    
+    % S2 -> S1 (Loop if i != 10)
+    % Bend left?
+    \draw[->] (S2) to[bend right=45] node[above] {$i \neq 10$} (S1);
+    
+    % S2 -> Halt (if i == 10)
+    \draw[->] (S2) -- node[right] {$i = 10$} (Halt);
+    
+    % Halt Self Loop
+    \draw[->] (Halt) to[loop right] (Halt);
+
+\end{tikzpicture}

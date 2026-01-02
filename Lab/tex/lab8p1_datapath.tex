@@ -1,0 +1,80 @@
+\begin{tikzpicture}[
+    font=\sffamily,
+    thick,
+    >={Latex}
+]
+    % Use circuitikz IEEE ports
+    \ctikzset{logic ports=ieee}
+
+    % Styles for blocks
+    \tikzstyle{block} = [draw, rectangle, minimum width=3cm, minimum height=2cm, align=center, fill=white]
+    \tikzstyle{adder_style} = [draw, rectangle, minimum width=1cm, minimum height=1cm, align=center, fill=white]
+
+    % Components
+    
+    % Register i (Center)
+    \node [block] (RegI) at (0,0) {Register \\ $i$};
+
+    % Adder (+1) (Top Left - shifted right slightly to make room for control lines if needed, or lines go over/under)
+    \node [adder_style] (Adder) at (-4, 2) {+};
+
+
+
+    % NAND Gate (Bottom)
+    \node [nand port, number inputs=4, scale=1] (Nand) at (1.1, -3) {};
+    % Negation bubbles
+    \node [left, font=\tiny] at (Nand.in 1) {$i_3$};
+    \node [left, font=\tiny] at (Nand.in 2) {$i_2$};
+    \node [ocirc,left] at (Nand.bin 2) {}; 
+    \node [left, font=\tiny] at (Nand.in 3) {$i_1$};
+    \node [left, font=\tiny] at (Nand.in 4) {$i_0$};
+    \node [ocirc,left] at (Nand.bin 4) {};
+
+    % Connections
+
+    % 1. Register Output (Bottom) -> Bus Junction
+    \draw [line width=1.5pt] (RegI.south) -- ++(0,-0.5) coordinate (bus_junction);
+    \node [circ,thick] at (bus_junction) {};
+
+    % Tri-state Buffer (Output) (Right)
+    \node [buffer port, scale=0.5] at ($(bus_junction) + (2,0)$) (Buf) {};
+    
+    % 2. To Buffer (Right)
+    \draw [line width=1.5pt] (bus_junction) -- (Buf.bin);
+    \draw [->,line width=1.5pt] (Buf.bout) -- ++(1,0) node[right] {Data Bus};
+
+    % 3. To Adder (Left -> Top)
+    \draw [line width=1.5pt] (bus_junction)  -| (Adder.south);
+    \draw [line width=1.5pt] ($(Adder.west) - (1.5,0)$) node[left] {'1'} -- (Adder.west);
+    \draw [->, line width=1.5pt] (Adder.east) -- ++(1,0) -| (RegI.north);
+    \node [below right, font=\tiny] at (RegI.north) {D};
+
+    % 4. To NAND (Bottom)
+    \draw [line width=1.5pt] (bus_junction) -- ++(0,-2) coordinate (nand_split);
+    \draw [thin] (nand_split) -| (Nand.in 1);
+    \draw [thin] (nand_split) -| (Nand.in 2);
+    \draw [thin] (nand_split) -| (Nand.in 3);
+    \draw [thin] (nand_split) -| (Nand.in 4);
+    \draw [->, thin] (Nand.out) -- ++(1,0) node[right] {$i \neq 10$};
+
+
+    % Control Signals - Left Aligned
+    % Define start x coordinate for all controls
+    \coordinate (ctrl_x) at (-6, 0); 
+    
+    % iLoad (to Register)
+    \draw [thin, ->] (-6, 1) node[left, black] {iLoad} -- (-2, 1) |- ($(RegI.west) + (0, 0.6)$); 
+    
+    % Clear (to Register)
+    \draw [thin, ->] (-6, 0) node[left, black] {Clear} -- (-2, 0) |- (RegI.west); 
+    
+    % Clock (to Register)
+    \draw [thin, ->] (-6, -1) node[left, black] {Clock} -- (-2, -1) |- ($(RegI.west) + (0, -0.6)$);
+    % Clock Triangle
+    \node [regular polygon, regular polygon sides=3, rotate=-90, inner sep=0pt, scale=0.5, fill=black] at ($(RegI.west) + (0.15, -0.6)$) {};
+
+
+    \draw [thin, ->] (-6, 3) node[left] {Out} -| (Buf.up);
+
+
+\end{tikzpicture}
