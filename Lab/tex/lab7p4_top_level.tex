@@ -1,0 +1,27 @@
+\begin{tikzpicture}[auto, node distance=2cm,>=latex]
+    % FPGA Block
+    \node [draw, minimum width=5cm, minimum height=4cm, thick] (fpga) {};
+    \node [anchor=north] at (fpga.north) {DE0-CV FPGA};
+    
+    % Internal Block: 4-bit Up/Down Counter
+    \node [draw, minimum width=2.5cm, minimum height=1.5cm, fill=white] (counter) at (fpga.center) {Up/Down Counter};
+    
+    % Inputs
+    \node [left=of fpga.west] (clk) {CLOCK\_50};
+    \draw [->, thick] (clk) -- (fpga.west |- counter.160) node[midway, above] {};
+    \draw [->, thick] (fpga.west |- counter.160) -- (counter.160);
+    
+    \node [left=of fpga.west, yshift=-1cm] (sw0) {SW[0] (Up/Down)};
+    \draw [->, thick] (sw0) -- (fpga.west |- counter.190) node[midway, above] {};
+    \draw [->, thick] (fpga.west |- counter.190) -- (counter.190);
+
+    \node [left=of fpga.west, yshift=-2cm] (key0) {KEY[0] (Reset)};
+    \draw [->, thick] (key0) -- (fpga.west |- counter.220) node[midway, above] {};
+    \draw [->, thick] (fpga.west |- counter.220) -- (counter.220);
+    
+    % Outputs
+    \node [right=of fpga.east] (leds) {LEDR[3..0]};
+    \draw [->, thick, double] (counter.east) -- (fpga.east |- counter.east) node[midway, above] {};
+    \draw [->, thick, double] (fpga.east |- counter.east) -- (leds);
+
+\end{tikzpicture}

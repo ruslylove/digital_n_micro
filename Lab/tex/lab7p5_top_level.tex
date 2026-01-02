@@ -1,0 +1,23 @@
+\begin{tikzpicture}[auto, node distance=2cm,>=latex]
+    % FPGA Block
+    \node [draw, minimum width=6cm, minimum height=4cm, thick] (fpga) {};
+    \node [anchor=north] at (fpga.north) {DE0-CV FPGA};
+    
+    % Internal Blocks
+    \node [draw, minimum width=2cm, minimum height=1cm, fill=white] (bcd) at ([xshift=-1.5cm]fpga.center) {BCD Counter};
+    \node [draw, minimum width=2cm, minimum height=1cm, fill=white] (dec) at ([xshift=1.5cm]fpga.center) {BCD to 7-Seg};
+    
+    \draw [->, thick, double] (bcd.east) -- (dec.west) node[midway, above] {4-bit};
+    
+    % Inputs
+    \node [left=of fpga.west] (clk) {CLOCK\_50};
+    \draw [->, thick] (clk) -- (fpga.west |- bcd.160) -- (bcd.160);
+
+    \node [left=of fpga.west, yshift=-1.5cm] (key0) {KEY[0] (Reset)};
+    \draw [->, thick] (key0) -- (fpga.west |- bcd.200) -- (bcd.200);
+    
+    % Outputs
+    \node [right=of fpga.east] (hex0) {HEX0};
+    \draw [->, thick, double] (dec.east) -- (fpga.east |- dec.east) -- (hex0);
+
+\end{tikzpicture}

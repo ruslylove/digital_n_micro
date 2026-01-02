@@ -1,0 +1,22 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{k}{LIBRARY}\PYG{+w}{ }\PYG{n+nn}{ieee}\PYG{p}{;}
+\PYG{k}{USE}\PYG{+w}{ }\PYG{n+nn}{ieee.std\PYGZus{}logic\PYGZus{}1164.}\PYG{k}{all}\PYG{p}{;}
+
+\PYG{k}{ENTITY}\PYG{+w}{ }\PYG{n+nc}{hex7seg}\PYG{+w}{ }\PYG{k}{IS}
+\PYG{+w}{    }\PYG{k}{PORT}\PYG{+w}{ }\PYG{p}{(}\PYG{+w}{ }\PYG{n}{hex}\PYG{+w}{ }\PYG{o}{:}\PYG{+w}{ }\PYG{k}{IN}\PYG{+w}{ }\PYG{k+kt}{STD\PYGZus{}LOGIC\PYGZus{}VECTOR}\PYG{p}{(}\PYG{l+m+mi}{1}\PYG{+w}{ }\PYG{k}{DOWNTO}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{)}\PYG{p}{;}
+\PYG{+w}{           }\PYG{n}{display}\PYG{+w}{ }\PYG{o}{:}\PYG{+w}{ }\PYG{k}{OUT}\PYG{+w}{ }\PYG{k+kt}{STD\PYGZus{}LOGIC\PYGZus{}VECTOR}\PYG{p}{(}\PYG{l+m+mi}{0}\PYG{+w}{ }\PYG{k}{TO}\PYG{+w}{ }\PYG{l+m+mi}{6}\PYG{p}{)}\PYG{p}{)}\PYG{p}{;}
+\PYG{k}{END}\PYG{+w}{ }\PYG{n+nc}{hex7seg}\PYG{p}{;}
+
+\PYG{k}{ARCHITECTURE}\PYG{+w}{ }\PYG{n+nc}{Behavior}\PYG{+w}{ }\PYG{k}{OF}\PYG{+w}{ }\PYG{n+nc}{hex7seg}\PYG{+w}{ }\PYG{k}{IS}
+\PYG{k}{BEGIN}
+\PYG{+w}{    }\PYG{k}{PROCESS}\PYG{+w}{ }\PYG{p}{(}\PYG{+w}{ }\PYG{n}{hex}\PYG{+w}{ }\PYG{p}{)}
+\PYG{+w}{    }\PYG{k}{BEGIN}
+\PYG{+w}{        }\PYG{k}{CASE}\PYG{+w}{ }\PYG{n}{hex}\PYG{+w}{ }\PYG{k}{IS}
+\PYG{+w}{            }\PYG{k}{WHEN}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}00\PYGZdq{}}\PYG{+w}{ }\PYG{o}{=}\PYG{o}{\PYGZgt{}}\PYG{+w}{ }\PYG{n}{display}\PYG{+w}{ }\PYG{o}{\PYGZlt{}}\PYG{o}{=}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}1000010\PYGZdq{}}\PYG{p}{;}\PYG{+w}{ }\PYG{c+c1}{\PYGZhy{}\PYGZhy{} d}
+\PYG{+w}{            }\PYG{k}{WHEN}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}01\PYGZdq{}}\PYG{+w}{ }\PYG{o}{=}\PYG{o}{\PYGZgt{}}\PYG{+w}{ }\PYG{n}{display}\PYG{+w}{ }\PYG{o}{\PYGZlt{}}\PYG{o}{=}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}0110000\PYGZdq{}}\PYG{p}{;}\PYG{+w}{ }\PYG{c+c1}{\PYGZhy{}\PYGZhy{} E}
+\PYG{+w}{            }\PYG{k}{WHEN}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}10\PYGZdq{}}\PYG{+w}{ }\PYG{o}{=}\PYG{o}{\PYGZgt{}}\PYG{+w}{ }\PYG{n}{display}\PYG{+w}{ }\PYG{o}{\PYGZlt{}}\PYG{o}{=}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}0000001\PYGZdq{}}\PYG{p}{;}\PYG{+w}{ }\PYG{c+c1}{\PYGZhy{}\PYGZhy{} 0}
+\PYG{+w}{            }\PYG{k}{WHEN}\PYG{+w}{ }\PYG{k}{OTHERS}\PYG{+w}{ }\PYG{o}{=}\PYG{o}{\PYGZgt{}}\PYG{+w}{ }\PYG{n}{display}\PYG{+w}{ }\PYG{o}{\PYGZlt{}}\PYG{o}{=}\PYG{+w}{ }\PYG{l+s}{\PYGZdq{}1111111\PYGZdq{}}\PYG{p}{;}\PYG{+w}{ }\PYG{c+c1}{\PYGZhy{}\PYGZhy{} Blank}
+\PYG{+w}{        }\PYG{k}{END}\PYG{+w}{ }\PYG{k}{CASE}\PYG{p}{;}
+\PYG{+w}{    }\PYG{k}{END}\PYG{+w}{ }\PYG{k}{PROCESS}\PYG{p}{;}
+\PYG{k}{END}\PYG{+w}{ }\PYG{n+nc}{Behavior}\PYG{p}{;}
+\end{MintedVerbatim}

@@ -1,0 +1,35 @@
+\begin{tikzpicture}[auto, node distance=2cm,>=latex]
+    % FPGA Block
+    \node [draw, minimum width=7cm, minimum height=5cm, thick] (fpga) {};
+    \node [anchor=north] at (fpga.north) {DE0-CV FPGA};
+    
+    % Internal: Clock Divider
+    \node [draw, minimum width=2cm, minimum height=1cm, fill=white] (clk_div) at ([xshift=-2cm, yshift=1cm]fpga.center) {Clock Div};
+    
+    % Internal: 2-Digit BCD Counter
+    \node [draw, minimum width=2.5cm, minimum height=1.5cm, fill=white] (cnt) at ([xshift=-2cm, yshift=-1.5cm]fpga.center) {2-Digit BCD};
+    
+    % Internal: Decoders
+    \node [draw, minimum width=1.5cm, minimum height=1cm, fill=white] (dec0) at ([xshift=1.5cm, yshift=-0.5cm]fpga.center) {Seg Dec 0};
+    \node [draw, minimum width=1.5cm, minimum height=1cm, fill=white] (dec1) at ([xshift=1.5cm, yshift=-2.5cm]fpga.center) {Seg Dec 1};
+    
+    % Connections
+    \draw [->, thick] (clk_div.south) -- (cnt.north) node[midway, right] {1 Hz};
+    \draw [->, thick, double] (cnt.east) ++(0, 0.3) -- (dec0.west |- dec0.180) node[midway, above] {Digit 0};
+    \draw [->, thick, double] (cnt.east) ++(0, -0.3) -- (dec1.west |- dec1.180) node[midway, above] {Digit 1};
+    
+    % Inputs
+    \node [left=of fpga.west, yshift=1cm] (clk) {CLOCK\_50};
+    \draw [->, thick] (clk) -- (fpga.west |- clk_div.west) -- (clk_div.west);
+    
+    \node [left=of fpga.west, yshift=-1.5cm] (key0) {KEY[0]};
+    \draw [->, thick] (key0) -- (fpga.west |- cnt.west) -- (cnt.west);
+    
+    % Outputs
+    \node [right=of fpga.east, yshift=-0.5cm] (hex0) {HEX0};
+    \draw [->, thick, double] (dec0.east) -- (fpga.east |- dec0.east) -- (hex0);
+    
+    \node [right=of fpga.east, yshift=-2.5cm] (hex1) {HEX1};
+    \draw [->, thick, double] (dec1.east) -- (fpga.east |- dec1.east) -- (hex1);
+
+\end{tikzpicture}

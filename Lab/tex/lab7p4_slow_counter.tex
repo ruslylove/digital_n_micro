@@ -1,0 +1,33 @@
+\begin{tikzpicture}[auto, node distance=2cm,>=latex]
+    % Large Counter
+    \node [draw, minimum width=3cm, minimum height=2cm] (large_cnt) {Large Counter};
+    \node [anchor=south] at (large_cnt.north) {n-bit};
+    
+    % Inputs
+    \node [left=of large_cnt] (clk) {50 MHz Clock};
+    \draw [->, thick] (clk) -- (large_cnt.west);
+    
+    % Comparator
+    \node [draw, minimum width=1.5cm, minimum height=1cm, right=1.5cm of large_cnt] (cmp) {Comp.};
+    
+    % Constant Input
+    \node [below=0.5cm of cmp] (const) {Constant};
+    \draw [->, thick] (const) -- (cmp.south);
+    
+    % Small Counter
+    \node [draw, minimum width=3cm, minimum height=2cm, right=2.5cm of cmp] (small_cnt) {Small Counter};
+    \node [anchor=south] at (small_cnt.north) {4-bit (0-9)};
+    
+    % Connections
+    \draw [->, thick] (large_cnt.east) -- (cmp.west);
+    \draw [->, thick] (cmp.east) -- (small_cnt.west) node[midway, above] {Enable (E)} node[midway, below] {1 Hz Enable};
+    
+    % Clock for Small Counter (Same 50MHz)
+    % The diagram in Lab 4 might imply the small counter is enabled by the large one but clocked by the same clock
+    \draw [->, thick] (clk) -- ++(0, -2.5) -| (small_cnt.south);
+    
+    % Output
+    \node [right=of small_cnt] (hex) {HEX0};
+    \draw [->, thick, double] (small_cnt.east) -- (hex);
+
+\end{tikzpicture}

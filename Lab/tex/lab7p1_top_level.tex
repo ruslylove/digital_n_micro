@@ -1,0 +1,34 @@
+\begin{tikzpicture}[auto, node distance=1.5cm, >=latex]
+    % Internal Block: 8-bit Counter (Centered)
+    \node [draw, minimum width=3cm, minimum height=2cm, align=center, fill=white] (counter) at (0,0) {8-bit \\ Counter};
+
+    % Inputs - Place relative to Counter
+    \node [left=of counter.west, anchor=east, yshift=1.5cm, xshift=-2cm] (key0) {KEY[0] (Clk)};
+    \node [left=of counter.west, anchor=east, yshift=0cm, xshift=-2cm] (sw1) {SW[1] (En)};
+    \node [left=of counter.west, anchor=east, yshift=-1.5cm, xshift=-2cm] (sw0) {SW[0] (Clr)};
+
+    % Input Connections
+    % Route: Input -> (x_turn, input_y) -> (x_turn, target_y) -> Target
+    \coordinate (key0_turn) at ($(counter.west) + (-0.5, 0)$);
+    \draw [->, thick, shorten >= 3pt] (key0.east) -- (key0.east -| key0_turn) |- ($(counter.west) + (0, 0.3)$);
+    \draw [->, thick, shorten >= 3pt] (sw1.east) -- (sw1.east -| key0_turn) -- (counter.west);
+    \draw [->, thick, shorten >= 3pt] (sw0.east) -- (sw0.east -| key0_turn) |- ($(counter.west) + (0, -0.3)$);
+
+    % Internal: Decoders
+    \node [draw, minimum width=1.5cm, minimum height=1cm, fill=white] (dec0) at (4.5, -1.5) {7-Seg Dec 0};
+    \node [draw, minimum width=1.5cm, minimum height=1cm, fill=white] (dec1) at (4.5, 1.5) {7-Seg Dec 1};
+
+    % Counter to Decoders
+    \coordinate (counter_turn) at ($(counter.east) + (1, 0)$);
+    \draw [->, thick, shorten >= 3pt] (counter.20) -| node[left, font=\scriptsize, near end] {Q[7..4]} (dec1.west -| counter_turn) -- (dec1.west);
+    \draw [->, thick, shorten >= 3pt] (counter.340) -| node[left, font=\scriptsize, near end] {Q[3..0]} (dec0.west -| counter_turn) -- (dec0.west);
+
+    % Outputs
+    \node [right=of dec1.east] (hex1) {HEX1};
+    \node [right=of dec0.east] (hex0) {HEX0};
+
+    % Component to Output Connections
+    \draw [->, thick, double, shorten >= 3pt] (dec1.east) -- (hex1.west);
+    \draw [->, thick, double, shorten >= 3pt] (dec0.east) -- (hex0.west);
+
+\end{tikzpicture}

@@ -1,0 +1,52 @@
+\begin{circuitikz}[american]
+    % Settings
+    \ctikzset{logic ports=ieee, scale=0.8}
+    \ctikzset{flipflops/scale=0.8}
+
+    % Parameters
+    \def\ffdist{5.5}
+    \def\gatey{1.5}
+
+    % Inputs
+    \node (clk_in) at (-2, -3) {Clock};
+    \node (clr_in) at (-2, -3.5) {Clear};
+    \node (enable) at (-2, 0) {Enable};
+
+    % Flip-Flops
+    \foreach \i  in {0,1,2,3} {
+        \node[flipflop T, anchor=pin 1,flipflop def={nd=1}] (FF\i) at (\i*\ffdist, 0) {};
+        \ifnum\i<3
+        \node[and port,anchor=in 2] (AND\i) at (FF\i.pin 6) {};
+        \draw (FF\i.down) to[short,-*] (FF\i.down |- clr_in.east);
+        \draw (FF\i.pin 3) to[short,-*] (FF\i.pin 3 |- clk_in.east);
+        \draw (AND\i.in 1) |- ++(-2.5, 0.5) coordinate (Tin\i);
+        \fi
+    }
+
+    % Bus Lines
+    \draw (clk_in.east) -| (FF3.pin 3);
+    \draw (clr_in.east) -| (FF3.down);
+
+    % Logic Connections
+
+    % FF0: T = Enable
+    \draw (enable.east) -- (FF0.pin 1);
+
+    \foreach \i [evaluate=\i as \nexti using int(\i+1)] in {0,1,2} {
+        \ifnum\i>0
+        \draw (Tin\i) |- (FF\i.pin 1);
+        \fi
+
+        \ifnum\i<2
+        \draw (AND\i.out) to[short,-*] (AND\i.out -| Tin\nexti);
+        \fi
+    }
+
+    \draw (Tin0) to[short,-*] (Tin0 |- FF0.pin 1);
+    \draw (AND2.out) -- ++(0.2,0) |- (FF3.pin 1);
+
+  
+
+    
+
+\end{circuitikz}

@@ -1,0 +1,32 @@
+\begin{tikzpicture}[auto, node distance=2cm,>=latex]
+    % Counter
+    \node [draw, minimum width=2cm, minimum height=1.5cm] (cnt) {3-bit Counter};
+    \node [left=of cnt] (clk) {1 Hz Enable};
+    \draw [->, thick] (clk) -- (cnt.west);
+    
+    \draw [<-, thick] (cnt.north) -- ++(0, 0.5) node[above] {50MHz};
+    
+    % Logic / Muxes
+    \node [draw, minimum width=5cm, minimum height=2.5cm, right=2cm of cnt] (mux) {Mux Logic / Rotator};
+    
+    % Connections
+    \draw [->, thick, double] (cnt.east) -- (mux.west) node[midway, above] {Select (0-5)};
+    
+    % Outputs
+    \node [right=of mux, yshift=1.0cm] (hex5) {HEX5};
+    \node [right=of mux, yshift=0.6cm] (hex4) {HEX4};
+    \node [right=of mux, yshift=0.2cm] (hex3) {HEX3};
+    \node [right=of mux, yshift=-0.2cm] (hex2) {HEX2};
+    \node [right=of mux, yshift=-0.6cm] (hex1) {HEX1};
+    \node [right=of mux, yshift=-1.0cm] (hex0) {HEX0};
+    
+    \draw [->, thick, double] (mux.east) ++(0, 1.0) -- (hex5);
+    \draw [->, thick, double] (mux.east) ++(0, 0.6) -- (hex4);
+    \draw [->, thick, double] (mux.east) ++(0, 0.2) -- (hex3);
+    \draw [->, thick, double] (mux.east) ++(0, -0.2) -- (hex2);
+    \draw [->, thick, double] (mux.east) ++(0, -0.6) -- (hex1);
+    \draw [->, thick, double] (mux.east) ++(0, -1.0) -- (hex0);
+    
+    \node [below=0.5cm of mux] {Pattern shifts across all displays};
+
+\end{tikzpicture}

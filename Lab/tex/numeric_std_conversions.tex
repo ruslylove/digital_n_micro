@@ -1,0 +1,34 @@
+\begin{tikzpicture}[node distance=4cm, auto]
+    % Styles
+    \tikzstyle{block} = [rectangle, draw, fill=blue!10, text width=4cm, text centered, rounded corners, minimum height=1.5cm, thick]
+    \tikzstyle{funcline} = [draw, -latex', line width=2pt, blue!80!black, shorten >=3pt]
+    \tikzstyle{castline} = [draw, -latex', line width=2pt, red!80!black, shorten >=3pt]
+    \tikzstyle{label} = [midway, fill=white, font=\Large, align=center]
+
+    % Nodes
+    \node [block] (int) {INTEGER \\ \footnotesize (standard)};
+    \node [block, below left=of int] (uns) {UNSIGNED \\ \footnotesize (numeric\_std)};
+    \node [block, below right=of int] (sig) {SIGNED \\ \footnotesize (numeric\_std)};
+    \node [block, below=of int, yshift=-4cm] (slv) {STD\_LOGIC\_VECTOR \\ \footnotesize (std\_logic\_1164)};
+
+    % Paths: Integer <-> Unsigned
+    \draw [funcline] ([xshift=-0.5cm]int.south) to [bend right=20] node [label, left] {to\_unsigned(i, n)} ([xshift=0.5cm]uns.north);
+    \draw [funcline] ([xshift=0.5cm]uns.north) to [bend right=20] node [label, right] {to\_integer(u)} ([xshift=-0.5cm]int.south);
+
+    % Paths: Integer <-> Signed
+    \draw [funcline] ([xshift=0.5cm]int.south) to [bend left=20] node [label, right] {to\_signed(i, n)} ([xshift=-0.5cm]sig.north);
+    \draw [funcline] ([xshift=-0.5cm]sig.north) to [bend left=20] node [label, left] {to\_integer(s)} ([xshift=0.5cm]int.south);
+
+    % Paths: Unsigned <-> SLV
+    \draw [castline] ([xshift=-0.5cm]uns.south) to [bend right=20] node [label, left] {std\_logic\_vector(u)} ([xshift=-0.5cm]slv.north);
+    \draw [castline] ([xshift=-0.5cm]slv.north) to [bend right=20] node [label, right] {unsigned(v)} ([xshift=-0.5cm]uns.south);
+
+    % Paths: Signed <-> SLV
+    \draw [castline] ([xshift=0.5cm]sig.south) to [bend left=20] node [label, right] {std\_logic\_vector(s)} ([xshift=0.5cm]slv.north);
+    \draw [castline] ([xshift=0.5cm]slv.north) to [bend left=20] node [label, left] {signed(v)} ([xshift=0.5cm]sig.south);
+
+    % Paths: Unsigned <-> Signed (Casting)
+    \draw [castline] (uns) -- node [label, above] {signed(u)} (sig);
+    \draw [castline] (sig) -- node [label, below] {unsigned(s)} (uns);
+
+\end{tikzpicture}

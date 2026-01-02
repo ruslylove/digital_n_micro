@@ -1,0 +1,27 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{k}{LIBRARY}\PYG{+w}{ }\PYG{n+nn}{ieee}\PYG{p}{;}
+\PYG{k}{USE}\PYG{+w}{ }\PYG{n+nn}{ieee.std\PYGZus{}logic\PYGZus{}1164.}\PYG{k}{all}\PYG{p}{;}
+\PYG{k}{USE}\PYG{+w}{ }\PYG{n+nn}{ieee.numeric\PYGZus{}std.}\PYG{k}{all}\PYG{p}{;}
+
+\PYG{k}{ENTITY}\PYG{+w}{ }\PYG{n+nc}{counter}\PYG{+w}{ }\PYG{k}{IS}
+\PYG{+w}{    }\PYG{k}{GENERIC}\PYG{+w}{ }\PYG{p}{(}\PYG{+w}{ }\PYG{n}{n}\PYG{+w}{ }\PYG{o}{:}\PYG{+w}{ }\PYG{k+kt}{INTEGER}\PYG{+w}{ }\PYG{o}{:}\PYG{o}{=}\PYG{+w}{ }\PYG{l+m+mi}{4}\PYG{+w}{ }\PYG{p}{)}\PYG{p}{;}
+\PYG{+w}{    }\PYG{k}{PORT}\PYG{+w}{ }\PYG{p}{(}\PYG{+w}{ }\PYG{n}{Clock}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{Clear}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{Enable}\PYG{+w}{ }\PYG{o}{:}\PYG{+w}{ }\PYG{k}{IN}\PYG{+w}{ }\PYG{k+kt}{STD\PYGZus{}LOGIC}\PYG{p}{;}
+\PYG{+w}{           }\PYG{n}{Q}\PYG{+w}{ }\PYG{o}{:}\PYG{+w}{ }\PYG{k}{OUT}\PYG{+w}{ }\PYG{k+kt}{UNSIGNED}\PYG{p}{(}\PYG{n}{n}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{+w}{ }\PYG{k}{DOWNTO}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{)}\PYG{p}{)}\PYG{p}{;}
+\PYG{k}{END}\PYG{+w}{ }\PYG{n+nc}{counter}\PYG{p}{;}
+
+\PYG{k}{ARCHITECTURE}\PYG{+w}{ }\PYG{n+nc}{Behavior}\PYG{+w}{ }\PYG{k}{OF}\PYG{+w}{ }\PYG{n+nc}{counter}\PYG{+w}{ }\PYG{k}{IS}
+\PYG{+w}{    }\PYG{k}{SIGNAL}\PYG{+w}{ }\PYG{n}{value}\PYG{+w}{ }\PYG{o}{:}\PYG{+w}{ }\PYG{k+kt}{UNSIGNED}\PYG{p}{(}\PYG{n}{n}\PYG{o}{\PYGZhy{}}\PYG{l+m+mi}{1}\PYG{+w}{ }\PYG{k}{DOWNTO}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{)}\PYG{p}{;}
+\PYG{k}{BEGIN}
+\PYG{+w}{    }\PYG{k}{PROCESS}\PYG{+w}{ }\PYG{p}{(}\PYG{+w}{ }\PYG{n}{Clock}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{Clear}\PYG{+w}{ }\PYG{p}{)}
+\PYG{+w}{    }\PYG{k}{BEGIN}
+\PYG{+w}{        }\PYG{k}{IF}\PYG{+w}{ }\PYG{n}{Clear}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+s+sc}{\PYGZsq{}0\PYGZsq{}}\PYG{+w}{ }\PYG{k}{THEN}
+\PYG{+w}{            }\PYG{n}{value}\PYG{+w}{ }\PYG{o}{\PYGZlt{}}\PYG{o}{=}\PYG{+w}{ }\PYG{p}{(}\PYG{k}{OTHERS}\PYG{+w}{ }\PYG{o}{=}\PYG{o}{\PYGZgt{}}\PYG{+w}{ }\PYG{l+s+sc}{\PYGZsq{}0\PYGZsq{}}\PYG{p}{)}\PYG{p}{;}
+\PYG{+w}{        }\PYG{k}{ELSIF}\PYG{+w}{ }\PYG{n}{RISING\PYGZus{}EDGE}\PYG{p}{(}\PYG{n}{Clock}\PYG{p}{)}\PYG{+w}{ }\PYG{k}{THEN}
+\PYG{+w}{            }\PYG{k}{IF}\PYG{+w}{ }\PYG{n}{Enable}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+s+sc}{\PYGZsq{}1\PYGZsq{}}\PYG{+w}{ }\PYG{k}{THEN}
+\PYG{+w}{                }\PYG{n}{value}\PYG{+w}{ }\PYG{o}{\PYGZlt{}}\PYG{o}{=}\PYG{+w}{ }\PYG{n}{value}\PYG{+w}{ }\PYG{o}{+}\PYG{+w}{ }\PYG{l+m+mi}{1}\PYG{p}{;}
+\PYG{+w}{            }\PYG{k}{END}\PYG{+w}{ }\PYG{k}{IF}\PYG{p}{;}
+\PYG{+w}{        }\PYG{k}{END}\PYG{+w}{ }\PYG{k}{IF}\PYG{p}{;}
+\PYG{+w}{    }\PYG{k}{END}\PYG{+w}{ }\PYG{k}{PROCESS}\PYG{p}{;}
+\PYG{+w}{    }\PYG{n}{Q}\PYG{+w}{ }\PYG{o}{\PYGZlt{}}\PYG{o}{=}\PYG{+w}{ }\PYG{n}{value}\PYG{p}{;}
+\PYG{k}{END}\PYG{+w}{ }\PYG{n+nc}{Behavior}\PYG{p}{;}
+\end{MintedVerbatim}

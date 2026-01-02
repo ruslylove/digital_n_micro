@@ -1,0 +1,220 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{minted}
+\usepackage{circuitikz}
+\usepackage{tikz}
+\usetikzlibrary{shapes, arrows, calc, positioning, circuits.logic.US, circuits.logic.IEC}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{hyperref}
+\usemintedstyle{trac}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\small 010153101 Digital Circuit and Microprocessor Fundamental \\ Semester 2/2025}
+\fancyfoot[R]{\thepage}
+
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyfoot[C]{\small 010153101 Digital Circuit and Microprocessor Fundamental \\ Semester 2/2025}%
+  \fancyfoot[R]{\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+}
+
+\title{Laboratory Exercise 7 - Week 2 \\ Applications of Counters}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+This week focuses on applications of counters, including timing generation and controlling display sequences.
+
+\setcounter{figure}{3}
+
+\section*{Part IV}
+
+Design and implement a circuit that successively flashes digits 0 through 9 on the 7-segment display HEX0. Each digit should be displayed for about one second. Use a counter to determine the one-second intervals. The counter should be incremented by the 50-MHz clock signal provided on the DE0-CV board. For the output, you can use the 7-segment decoder from previous exercises.
+
+\begin{figure}[H]
+    \centering
+    \resizebox{\textwidth}{!}{\input{tex/lab7p4_slow_counter.tex}}
+    \caption{Making a slow counter to drive a display.}
+    \label{fig:slow_counter}
+\end{figure}
+
+Do not derive any other clock signals in your design—make sure that all flip-flops in your circuit are clocked directly by the 50-MHz clock signal. A partial design of the required circuit is shown in Figure \ref{fig:slow_counter}. The figure shows how a large bit-width counter can be used to produce an enable signal for a smaller counter.
+
+For reference, an example of a counter specified using a generic parameter \texttt{n} is shown in Figure \ref{fig:generic_counter}.
+
+\begin{figure}[H]
+    \centering
+    \begin{minted}[frame=single, fontsize=\small, linenos]{vhdl}
+LIBRARY ieee;
+USE ieee.std_logic_1164.all;
+USE ieee.numeric_std.all;
+
+ENTITY counter IS
+    GENERIC ( n : INTEGER := 4 );
+    PORT ( Clock, Clear, Enable : IN STD_LOGIC;
+           Q : OUT UNSIGNED(n-1 DOWNTO 0));
+END counter;
+
+ARCHITECTURE Behavior OF counter IS
+    SIGNAL value : UNSIGNED(n-1 DOWNTO 0);
+BEGIN
+    PROCESS ( Clock, Clear )
+    BEGIN
+        IF Clear = '0' THEN
+            value <= (OTHERS => '0');
+        ELSIF RISING_EDGE(Clock) THEN
+            IF Enable = '1' THEN
+                value <= value + 1;
+            END IF;
+        END IF;
+    END PROCESS;
+    Q <= value;
+END Behavior;
+    \end{minted}
+    \caption{A generic n-bit counter.}
+    \label{fig:generic_counter}
+\end{figure}
+
+\section*{Part V}
+
+Design and implement a circuit that displays a word on three 7-segment displays HEX2-0. The word to be displayed for your DE0-CV board is "dE0". Make the letters rotate from right to left in intervals of about one second.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|}
+    \hline
+    Clock Cycle & HEX2 & HEX1 & HEX0 \\
+    \hline
+    0 & d & E & 0 \\
+    1 & E & 0 & d \\
+    2 & 0 & d & E \\
+    \hline
+    \end{tabular}
+    \caption{Rotating pattern.}
+    \label{tab:rotate_pattern}
+\end{table}
+
+The specific rotation pattern you need to implement is detailed in Table \ref{tab:rotate_pattern}.
+
+\begin{figure}[H]
+    \centering
+    \input{tex/lab7p5_rotate_small.tex}
+    \caption{Block diagram for rotating word.}
+    \label{fig:rotate_small}
+\end{figure}
+
+A block diagram corresponding to this circuit is shown in Figure \ref{fig:rotate_small}.
+
+There are many ways to design the required circuit. One solution is to re-use the VHDL code designed in Laboratory Exercise 1, Part V. Using that code, the main change needed is to replace the two switches that were used to select the characters being rotated on the displays with a 2-bit counter that increments at one-second intervals. Note that the counter for this circuit must also use the 50-MHz clock signal.
+
+For reference, an example of a 2-bit wide 4-to-1 multiplexer is shown in Figure \ref{fig:mux_4to1}.
+
+\begin{figure}[H]
+    \centering
+    \begin{minted}[frame=single, fontsize=\small, linenos]{vhdl}
+LIBRARY ieee;
+USE ieee.std_logic_1164.all;
+
+ENTITY mux_2bit_4to1 IS
+    PORT ( S : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+           U, V, W, X : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+           M : OUT STD_LOGIC_VECTOR(1 DOWNTO 0));
+END mux_2bit_4to1;
+
+ARCHITECTURE Behavior OF mux_2bit_4to1 IS
+BEGIN
+    PROCESS ( S, U, V, W, X )
+    BEGIN
+        CASE S IS
+            WHEN "00" => M <= U;
+            WHEN "01" => M <= V;
+            WHEN "10" => M <= W;
+            WHEN "11" => M <= X;
+            WHEN OTHERS => M <= (OTHERS => '0');
+        END CASE;
+    END PROCESS;
+END Behavior;
+    \end{minted}
+    \caption{A 2-bit wide 4-to-1 multiplexer.}
+    \label{fig:mux_4to1}
+\end{figure}
+
+For reference, an example of a decoder that outputs "d", "E", "0", and blank space is shown in Figure \ref{fig:decoder_de0}.
+
+\begin{figure}[H]
+    \centering
+    \begin{minted}[frame=single, fontsize=\small, linenos]{vhdl}
+LIBRARY ieee;
+USE ieee.std_logic_1164.all;
+
+ENTITY hex7seg IS
+    PORT ( hex : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+           display : OUT STD_LOGIC_VECTOR(0 TO 6));
+END hex7seg;
+
+ARCHITECTURE Behavior OF hex7seg IS
+BEGIN
+    PROCESS ( hex )
+    BEGIN
+        CASE hex IS
+            WHEN "00" => display <= "1000010"; -- d
+            WHEN "01" => display <= "0110000"; -- E
+            WHEN "10" => display <= "0000001"; -- 0
+            WHEN OTHERS => display <= "1111111"; -- Blank
+        END CASE;
+    END PROCESS;
+END Behavior;
+    \end{minted}
+    \caption{A decoder for d, E, 0, and blank.}
+    \label{fig:decoder_de0}
+\end{figure}
+
+\section*{Part VI}
+
+Augment your circuit from Part V so that it can rotate the word "dE0" over all 6 7-segment displays on your DE0-CV board (HEX5-0). The shifting pattern is shown in Table \ref{tab:rotate_large_pattern}. Similar to Part V, the counter for this circuit must also use the 50-MHz clock signal.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|c|c|}
+    \hline
+    Clock Cycle & HEX5 & HEX4 & HEX3 & HEX2 & HEX1 & HEX0 \\
+    \hline
+    0 &   &   &   & d & E & 0 \\
+    1 &   &   & d & E & 0 &   \\
+    2 &   & d & E & 0 &   &   \\
+    3 & d & E & 0 &   &   &   \\
+    4 & E & 0 &   &   &   & d \\
+    5 & 0 &   &   &   & d & E \\
+    \hline
+    \end{tabular}
+    \caption{Rotating the word dE0 on six displays.}
+    \label{tab:rotate_large_pattern}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \input{tex/lab7p6_rotate_large.tex}
+    \caption{Rotating the word over all displays.}
+    \label{fig:rotate_large}
+\end{figure}
+
+The block diagram for rotating the word across all displays is shown in Figure \ref{fig:rotate_large}.
+
+Implement the circuit and demonstrate its operation on the DE0-CV board.
+
+\vspace{1cm}
+\noindent \textbf{Updated By:} R. Sutthaweekul \\
+\textbf{Release Date:} 2026-01-02
+
+\end{document}

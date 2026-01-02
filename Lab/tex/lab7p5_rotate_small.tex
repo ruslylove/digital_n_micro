@@ -1,0 +1,27 @@
+\begin{tikzpicture}[auto, node distance=2cm,>=latex]
+    % Counter
+    \node [draw, minimum width=2cm, minimum height=1.5cm] (cnt) {2-bit Counter};
+    \node [left=of cnt] (clk) {1 Hz Enable};
+    \draw [->, thick] (clk) -- (cnt.west);
+    
+    \draw [<-, thick] (cnt.north) -- ++(0, 0.5) node[above] {50MHz};
+    
+    % Logic / Muxes
+    \node [draw, minimum width=5cm, minimum height=2.5cm, right=2cm of cnt] (mux) {Mux Logic / Rotator};
+    
+    % Connections
+    \draw [->, thick, double] (cnt.east) -- (mux.west) node[midway, above] {Select (0-2)};
+    
+    % Outputs
+    \node [right=of mux, yshift=0.8cm] (hex2) {HEX2};
+    \node [right=of mux] (hex1) {HEX1};
+    \node [right=of mux, yshift=-0.8cm] (hex0) {HEX0};
+    
+    \draw [->, thick, double] (mux.east) ++(0, 0.8) -- (hex2);
+    \draw [->, thick, double] (mux.east) -- (hex1);
+    \draw [->, thick, double] (mux.east) ++(0, -0.8) -- (hex0);
+    
+    % Text
+    \node [below=0.5cm of mux] {Displays: d, E, 0};
+
+\end{tikzpicture}
