@@ -1,0 +1,294 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{minted}
+\usepackage{circuitikz}
+\usepackage{tikz}
+\usetikzlibrary{shapes, arrows, calc, positioning, circuits.logic.US, circuits.logic.IEC}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{hyperref}
+\usemintedstyle{trac}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\small 010153101 Digital Circuit and Microprocessor Fundamental \\ Semester 2/2025}
+\fancyfoot[R]{\thepage}
+
+% Redefine plain style to match fancy style (for the title page)
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyfoot[C]{\small 010153101 Digital Circuit and Microprocessor Fundamental \\ Semester 2/2025}%
+  \fancyfoot[R]{\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+}
+
+\title{Laboratory Exercise 5.5 \\ Combinational Circuit Design (Pre-session Lab)}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section*{Introduction}
+This pre-session activity is designed to practice implementing combinational logic circuits using standard TTL (Transistor-Transistor Logic) Integrated Circuits (ICs). Students will design and build a simple 2-to-1 Multiplexer (MUX) and verify its operation using LEDs, a voltmeter, and an oscilloscope.
+
+\section*{Objectives}
+\begin{enumerate}
+    \item To understand the operation of a 2-to-1 Multiplexer.
+    \item To implement a combinational logic circuit using basic logic gates (AND, OR, NOT) on a breadboard.
+    \item To verify circuit functionality using LEDs.
+    \item To measure logic voltage levels using a digital multimeter.
+    \item To observe signal transitions and propagation delay using an oscilloscope.
+\end{enumerate}
+
+\section*{Equipment Required}
+\begin{itemize}
+    \item DC Power Supply (+5V)
+    \item Digital Multimeter
+    \item Digital Oscilloscope
+
+    \item Breadboard and Jumper Wires
+    \item TTL ICs:
+    \begin{itemize}
+        \item 74LS04 (Hex Inverter / NOT Gate)
+        \item 74LS08 (Quad 2-Input AND Gate)
+        \item 74LS32 (Quad 2-Input OR Gate)
+    \end{itemize}
+    \item Resistors: $330\Omega$ (for LEDs), $10k\Omega$ (for pull-up/pull-down)
+    \item DIP switches
+    \item LEDs (Red/Green)
+\end{itemize}
+
+\section*{Part I: Theory and Logic Design}
+
+A 2-to-1 Multiplexer (MUX) has two data inputs ($I_0, I_1$), one select input ($S$), and one output ($Y$). The operation is defined as follows:
+\begin{itemize}
+    \item If $S = 0$, the output $Y$ follows input $I_0$.
+    \item If $S = 1$, the output $Y$ follows input $I_1$.
+\end{itemize}
+
+\subsection*{Truth Table}
+Complete the truth table below to verify the logic.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        \textbf{Select (S)} & \textbf{Input ($I_1$)} & \textbf{Input ($I_0$)} & \textbf{Output (Y)} \\
+        \hline
+        0 & x & 0 & 0 \\
+        0 & x & 1 & 1 \\
+        1 & 0 & x & 0 \\
+        1 & 1 & x & 1 \\
+        \hline
+    \end{tabular}
+    \caption{Function Table of 2-to-1 MUX}
+    \label{tab:mux_truth}
+\end{table}
+
+The Boolean expression for the output $Y$ is:
+\[ Y = \bar{S} \cdot I_0 + S \cdot I_1 \]
+
+\subsection*{Logic Circuit Diagram}
+Figure \ref{fig:mux_logic} shows the gate-level implementation of the 2-to-1 MUX.
+
+\begin{figure}[H]
+    \centering
+    \begin{circuitikz}[circuitikz/logic ports=ieee]
+        \draw
+        (0,2) node[and port] (and1) {}
+        (0,0) node[and port] (and2) {}
+        (2.5,1) node[or port] (or1) {};
+        
+        % Align NOT gate output with AND1 input 2
+        \draw (and1.in 2) -- ++(-0.5,0) node[not port, anchor=out, scale=0.5] (not1) {};
+        
+        % Align I0 with AND1 input 1
+        \draw (and1.in 1) -- ++(-2.5,0) node[label=left:$I_0$] (I0) {};
+        
+        % Align I1 with AND2 input 2
+        \draw (and2.in 2) -- ++(-2.5,0) node[label=left:$I_1$] (I1) {};
+        
+        % S Junction and connections
+        \draw (not1.in) -- ++(-0.5,0) coordinate (s_split) node[circ] {};
+        \draw (s_split) -- (s_split -| I0) node[label=left:$S$] (S) {};
+        \draw (s_split) |- (and2.in 1);
+        
+        % AND outputs to OR inputs
+        \draw (and1.out) -| (or1.in 1);
+        \draw (and2.out) -| (or1.in 2);
+        
+        % Output Y
+        \draw (or1.out) -- (3.5,1) node[right] {$Y$};
+    \end{circuitikz}
+    \caption{Logic Diagram of 2-to-1 MUX using Basic Gates.}
+    \label{fig:mux_logic}
+\end{figure}
+
+Create a Quartus project for the 2-to-1 MUX circuit as follows:
+\begin{enumerate}
+    \item Create a new Quartus project for your DE0-CV board.
+    \item \textbf{Implement the circuit using Schematic Design.} Draw the circuit using the Block Editor and appropriate logic gates (NOT, AND2, OR2).
+    \item Compile the schematic design and perform a functional simulation to verify its correctness.
+    \item Simulate the behavior by creating a vector waveform file (*.vwf). Specify the inputs ($S, I_0, I_1$) and output ($Y$).
+    \item Run the simulation. The resulting waveforms should demonstrate the MUX behavior:
+    \begin{itemize}
+        \item When $S=0$, $Y$ should match $I_0$.
+        \item When $S=1$, $Y$ should match $I_1$.
+    \end{itemize}
+\end{enumerate}
+
+
+
+\section*{Part II: Hardware Implementation}
+
+\subsection*{Schematic Diagram}
+Construct the switch input circuits as shown in Figure \ref{fig:switch_circuit}. Then, connect the Multiplexer circuit on the breadboard as shown in Figure \ref{fig:schematic}. 
+\begin{itemize}
+    \item Use DIP switches for inputs $S, I_0, I_1$.
+    \item Use $10k\Omega$ pull-down resistors to ensure logic '0' when OFF (Open).
+    \item Use an LED with a $330\Omega$ series resistor to display the output $Y$.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \begin{circuitikz}
+        \draw (0,2) node[vcc] (vcc) {+5V}
+        to[spst, l=DIP Switch] (0,0.5) -- (0,0)
+        to[R, l_=$10k\Omega$] (0,-2) node[ground] (gnd) {};
+        \draw (0,0) to[short,*-] (3.5,0) node[right] {To Input ($S, I_0, I_1$)};
+        \node[right] at (0.5, 0.5) {Logic 1 (ON)};
+        \node[right] at (0.5, -1) {Logic 0 (OFF)};
+    \end{circuitikz}
+    \caption{Input Switch Circuit (Active High).}
+    \label{fig:switch_circuit}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{circuitikz}[scale=0.9, transform shape]
+        % Draw IC Blocks
+        \draw (0,0) rectangle (2,4) node[midway, align=center] {7404\\(NOT)};
+        \draw (4,0) rectangle (6,4) node[midway, align=center] {7408\\(AND)};
+        \draw (8,0) rectangle (10,4) node[midway, align=center] {7432\\(OR)};
+        
+        % Pin Labels INSIDE blocks
+        % 7404 Pins
+        \node[right] at (0, 3) {\small 1};
+        \node[left] at (2, 3) {\small 2};
+        
+        % 7408 Pins
+        \node[right] at (4, 3.5) {\small 1};
+        \node[right] at (4, 3) {\small 2};
+        \node[left] at (6, 3.25) {\small 3}; % Out 1
+        
+        \node[right] at (4, 1.5) {\small 4};
+        \node[right] at (4, 1) {\small 5};
+        \node[left] at (6, 1.25) {\small 6}; % Out 2
+        
+        % 7432 Pins
+        \node[right] at (8, 2.5) {\small 1};
+        \node[right] at (8, 2) {\small 2};
+        \node[left] at (10, 2.25) {\small 3}; % Out
+        
+        % Inputs
+        \node (S) at (-2, 3) {$S$};
+        \node (I0) at (-2, 3.5) {$I_0$};
+        \node (I1) at (-2, 1) {$I_1$};
+        
+        % Wiring
+        % S -> 7404 Pin 1 (Orange)
+        \draw[orange, thick] (S) -- (0, 3);
+        
+        % 7404 Pin 2 -> 7408 Pin 2 (Input B of Gate 1) (Blue)
+        \draw[blue, thick] (2, 3) -- (4, 3);
+        
+        % I0 -> 7408 Pin 1 (Input A of Gate 1) - Route OVER 7404 (Blue)
+        \draw[blue, thick] (I0) -- (-0.5, 3.5) -- (-0.5, 4.5) -- (3.5, 4.5) -- (3.5, 3.5) -- (4, 3.5);
+        
+        % S -> 7408 Pin 4 (Input A of Gate 2) - Branching off S - Route UNDER 7404 (Blue)
+        \draw[blue, thick] (-0.5, 3) node[circ, color=black]{} -- (-0.5, -0.5) -- (2.5, -0.5) -- (2.5, 1.5) -- (4, 1.5);
+        
+        % I1 -> 7408 Pin 5 (Input B of Gate 2) - Route UNDER 7404 (Blue)
+        \draw[blue, thick] (I1) -- (-1, 1) -- (-1, -1) -- (3.2, -1) -- (3.2, 1) -- (4, 1);
+        
+        % 7408 Pin 3 -> 7432 Pin 1 (Green)
+        \draw[green!60!black, thick] (6, 3.25) -- (7, 3.25) -- (7, 2.5) -- (8, 2.5);
+        
+        % 7408 Pin 6 -> 7432 Pin 2 (Green)
+        \draw[green!60!black, thick] (6, 1.25) -- (7, 1.25) -- (7, 2) -- (8, 2);
+        
+        % Output
+        % 7432 Pin 3 -> LED (Purple)
+        \draw[violet, thick] (10, 2.25) -- (11, 2.25) to[leDo] (13, 2.25) to[R, l=$330\Omega$] (15, 2.25) node[ground] {};
+        
+        % Power connections text
+        \node[align=center] at (5, -2.5) {Remember to connect Pin 14 to $V_{CC}$ and Pin 7 to GND for all ICs.};
+        
+    \end{circuitikz}
+    \caption{Wiring Logic Diagram showing IC connections.}
+    \label{fig:schematic}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{../public/mux_2_to_1_wiring_cropped.jpeg}
+    \caption{Breadboard implementation of the 2-to-1 MUX.}
+    \label{fig:breadboard}
+\end{figure}
+
+\textbf{Step-by-step Implementation:}
+Refer to Figure \ref{fig:breadboard} for a visual guide of the breadboard layout.
+\begin{enumerate}
+    \item Place the 7404, 7408, and 7432 ICs on the breadboard.
+    \item Connect Pin 14 ($V_{CC}$) to +5V and Pin 7 (GND) to Ground for all ICs.
+    \item Construct the circuit according to Figure \ref{fig:mux_logic} using jumper wires.
+    \item Connect the inputs $S, I_0, I_1$ to the switches/buttons.
+    \item Connect the output $Y$ to the LED circuit.
+\end{enumerate}
+
+\section*{Part III: Measurement and Verification}
+
+\subsection*{Functional Test}
+Verify the circuit operation by manually checking all combinations of $S, I_0, I_1$.
+
+\begin{enumerate}
+    \item Set DIP switches keys to set $S, I_0, I_1$.
+    \item Observe the LED status.
+    \item Does it match the Truth Table in Table \ref{tab:mux_truth}?
+\end{enumerate}
+
+\subsection*{Voltage Measurement}
+Use a Digital Multimeter (Voltmeter mode) to measure the output voltage levels.
+\begin{enumerate}
+    \item Connect the black probe to Ground (GND).
+    \item Connect the red probe to the Output ($Y$).
+    \item Measure the voltage when $Y$ is Logic 0. Record the value: \underline{\hspace{2cm}} V.
+    \item Measure the voltage when $Y$ is Logic 1. Record the value: \underline{\hspace{2cm}} V.
+    \item Do these values correspond to valid TTL logic levels?
+\end{enumerate}
+
+\subsection*{Oscilloscope Observation}
+To visualize the switching behavior and signal integrity:
+\begin{enumerate}
+    \item Set $I_0$ to Logic 0 and $I_1$ to Logic 1.
+    \item Connect Channel 1 of the oscilloscope to Select ($S$).
+    \item Connect Channel 2 of the oscilloscope to Output ($Y$).
+    \item Toggle $S$ (switch ON/OFF) and observe the transition on the oscilloscope.
+    \item Capture the waveform showing the relationship between $S$ and $Y$.
+    \item Set $I_0$ to Logic 1, $I_1$ to Logic 0, and repeat the observation.
+\end{enumerate}
+
+
+
+\vspace{2cm}
+\noindent \textbf{Updated By:} R. Sutthaweekul \\
+\textbf{Release Date:} 2026-01-17
+
+\end{document}
