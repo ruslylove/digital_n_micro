@@ -1,6 +1,11 @@
 ---
 layout: cover
 transition: fade
+theme: seriph
+background: https://cover.sli.dev
+title: Review - Digital Fundamentals
+routeAlias: summary_lectures_1_5
+
 ---
 
 # Review: Digital Fundamentals
