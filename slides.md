@@ -63,6 +63,9 @@ src: /common/lecture_4.md
 src: /common/lecture_5.md
 ---
 ---
+src: /summary_lectures_1_5.md
+---
+---
 src: /common/lecture_6.md
 ---
 ---
