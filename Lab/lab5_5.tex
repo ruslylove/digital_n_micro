@@ -60,7 +60,7 @@ This pre-session activity is designed to practice implementing combinational log
         \item 74LS08 (Quad 2-Input AND Gate)
         \item 74LS32 (Quad 2-Input OR Gate)
     \end{itemize}
-    \item Resistors: $330\Omega$ (for LEDs), $10k\Omega$ (for pull-up/pull-down)
+    \item Resistors: $330\Omega$ (for LEDs and pull-down)
     \item DIP switches
     \item LEDs (Red/Green)
 \end{itemize}
@@ -152,7 +152,7 @@ Create a Quartus project for the 2-to-1 MUX circuit as follows:
 Construct the switch input circuits as shown in Figure \ref{fig:switch_circuit}. Then, connect the Multiplexer circuit on the breadboard as shown in Figure \ref{fig:schematic}. 
 \begin{itemize}
     \item Use DIP switches for inputs $S, I_0, I_1$.
-    \item Use $10k\Omega$ pull-down resistors to ensure logic '0' when OFF (Open).
+    \item Use $330\Omega$ pull-down resistors to ensure logic '0' when OFF (Open).
     \item Use an LED with a $330\Omega$ series resistor to display the output $Y$.
 \end{itemize}
 
@@ -161,7 +161,7 @@ Construct the switch input circuits as shown in Figure \ref{fig:switch_circuit}.
     \begin{circuitikz}
         \draw (0,2) node[vcc] (vcc) {+5V}
         to[spst, l=DIP Switch] (0,0.5) -- (0,0)
-        to[R, l_=$10k\Omega$] (0,-2) node[ground] (gnd) {};
+        to[R, l_=$330\Omega$] (0,-2) node[ground] (gnd) {};
         \draw (0,0) to[short,*-] (3.5,0) node[right] {To Input ($S, I_0, I_1$)};
         \node[right] at (0.5, 0.5) {Logic 1 (ON)};
         \node[right] at (0.5, -1) {Logic 0 (OFF)};
@@ -238,7 +238,7 @@ Construct the switch input circuits as shown in Figure \ref{fig:switch_circuit}.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{../public/mux_2_to_1_wiring_cropped.jpeg}
+    \includegraphics[width=0.9\textwidth]{../public/lab5_5.png}
     \caption{Breadboard implementation of the 2-to-1 MUX.}
     \label{fig:breadboard}
 \end{figure}
@@ -289,6 +289,7 @@ To visualize the switching behavior and signal integrity:
 
 \vspace{2cm}
 \noindent \textbf{Updated By:} R. Sutthaweekul \\
-\textbf{Release Date:} 2026-01-17
+\textbf{Version:} 1.1 \\
+\textbf{Release Date:} 2026-02-04
 
 \end{document}
