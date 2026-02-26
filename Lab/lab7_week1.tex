@@ -11,6 +11,9 @@
 \geometry{a4paper, margin=1in}
 \usepackage{hyperref}
 \usemintedstyle{trac}
+\makeatletter
+\def\input@path{{./}{./tex/}{./Lab/tex/}}
+\makeatother
 
 \usepackage{fancyhdr}
 \pagestyle{fancy}
@@ -42,7 +45,7 @@ Consider the circuit in Figure \ref{fig:counter_struct}. It is a 4-bit synchrono
 
 \begin{figure}[H]
     \centering
-    \resizebox{0.7\textwidth}{!}{\input{tex/lab7p1_counter_struct.tex}}
+    \resizebox{0.7\textwidth}{!}{\input{lab7p1_counter_struct.tex}}
     \caption{A 4-bit synchronous counter using T-type flip-flops.}
     \label{fig:counter_struct}
 \end{figure}
@@ -58,7 +61,7 @@ perform the following steps:
 
 \begin{figure}[H]
     \centering
-    \resizebox{0.7\textwidth}{!}{\input{tex/lab7p1_top_level.tex}}
+    \resizebox{0.7\textwidth}{!}{\input{lab7p1_top_level.tex}}
     \caption{Top-level block diagram of the 8-bit counter.}
     \label{fig:part1_top_level}
 \end{figure}
@@ -112,7 +115,7 @@ Figure \ref{fig:numeric_std_types} shows how to convert data between different t
 
 \begin{figure}[H]
     \centering
-    \resizebox{0.7\textwidth}{!}{\input{tex/numeric_std_conversions.tex}}
+    \resizebox{0.7\textwidth}{!}{\input{numeric_std_conversions.tex}}
     \caption{Data type conversions in \texttt{ieee.numeric\_std}.}
     \label{fig:numeric_std_types}
 \end{figure}
@@ -132,12 +135,12 @@ END part2;
 ARCHITECTURE Behavior OF part2 IS
     SIGNAL count_val : UNSIGNED(15 DOWNTO 0);
 BEGIN
-    PROCESS ( Clk )
+    PROCESS ( Clk, Reset )
     BEGIN
-        IF RISING_EDGE(Clk) THEN
-            IF Reset = '0' THEN
-                count_val <= (OTHERS => '0');
-            ELSIF Enable = '1' THEN
+        IF Reset = '0' THEN
+            count_val <= (OTHERS => '0');
+        ELSIF RISING_EDGE(Clk) THEN
+            IF Enable = '1' THEN
                 count_val <= count_val + 1;
             END IF;
         END IF;
@@ -163,7 +166,7 @@ Use an LPM from the Library of Parameterized modules to implement a 16-bit count
 
 \begin{figure}[H]
     \centering
-    \input{tex/lab7p3_lpm_block.tex}
+    \input{lab7p3_lpm_block.tex}
     \caption{LPM Counter Block.}
     \label{fig:lpm_counter}
 \end{figure}
