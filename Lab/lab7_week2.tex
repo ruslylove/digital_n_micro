@@ -49,7 +49,14 @@ Design and implement a circuit that successively flashes digits 0 through 9 on t
     \label{fig:slow_counter}
 \end{figure}
 
-Do not derive any other clock signals in your design—make sure that all flip-flops in your circuit are clocked directly by the 50-MHz clock signal. A partial design of the required circuit is shown in Figure \ref{fig:slow_counter}. The figure shows how a large bit-width counter can be used to produce an enable signal for a smaller counter.
+\begin{figure}[H]
+    \centering
+    \resizebox{\textwidth}{!}{\input{tex/lab7p4_slow_counter_timing.tex}}
+    \caption{Timing diagram for the pulse signal (50 MHz clock).}
+    \label{fig:slow_counter_timing}
+\end{figure}
+
+Do not derive any other clock signals in your design—make sure that all flip-flops in your circuit are clocked directly by the 50-MHz clock signal. A partial design of the required circuit is shown in Figure \ref{fig:slow_counter}, and its corresponding timing diagram is shown in Figure \ref{fig:slow_counter_timing}. The figure shows how a large bit-width counter can be used to produce an enable signal for a smaller counter.
 
 For reference, an example of a counter specified using a generic parameter \texttt{n} is shown in Figure \ref{fig:generic_counter}.
 

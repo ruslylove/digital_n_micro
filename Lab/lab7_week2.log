@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.11.22)  2 JAN 2026 14:53
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.11.27)  26 FEB 2026 16:57
 entering extended mode
  \write18 enabled.
  %&-line parsing enabled.
@@ -909,15 +909,16 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <6> on input line 36.
  (./tex/lab7p4_slow_counter.tex)
+(./tex/lab7p4_slow_counter_timing.tex)
 \pydata@fh@_254779BC71A4EC2599A0BBBC4667C6A4.data.minted=\write6
 \openout6 = `_254779BC71A4EC2599A0BBBC4667C6A4.data.minted'.
 
-runsystem(latexminted config  --timestamp 20260102145343 254779BC71A4EC2599A0BB
+runsystem(latexminted config  --timestamp 20260226165713 254779BC71A4EC2599A0BB
 BC4667C6A4)...executed.
 
 
 (./_254779BC71A4EC2599A0BBBC4667C6A4.config.minted)
-runsystem(latexminted cleanconfig  --timestamp 20260102145343 254779BC71A4EC259
+runsystem(latexminted cleanconfig  --timestamp 20260226165713 254779BC71A4EC259
 9A0BBBC4667C6A4)...executed.
 
 
@@ -931,12 +932,12 @@ LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <9> not available
 
 {/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 95.
+(Font)              <7> on input line 102.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <5> on input line 95.
+(Font)              <5> on input line 102.
 
 (./tex/lab7p5_rotate_small.tex)
-Overfull \hbox (20.96046pt too wide) in paragraph at lines 27--113
+Overfull \hbox (20.96046pt too wide) in paragraph at lines 27--120
  [][] 
  []
 
@@ -946,7 +947,7 @@ Overfull \hbox (20.96046pt too wide) in paragraph at lines 27--113
 (./_minted/0C707E0B816DF3A489620192985912B9.highlight.minted)
 
 [3] (./tex/lab7p6_rotate_large.tex)
-Overfull \hbox (20.96046pt too wide) in paragraph at lines 32--208
+Overfull \hbox (20.96046pt too wide) in paragraph at lines 32--215
  [][] 
  []
 
@@ -961,26 +962,27 @@ Package rerunfilecheck Info: File `lab7_week2.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 45624 strings out of 473190
- 1140834 string characters out of 5715799
- 1900814 words of memory out of 5000000
- 68341 multiletter control sequences out of 15000+600000
+ 45671 strings out of 473190
+ 1141836 string characters out of 5715799
+ 1904888 words of memory out of 5000000
+ 68384 multiletter control sequences out of 15000+600000
  563587 words of font info for 53 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 96i,11n,101p,490b,800s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 96i,11n,101p,490b,808s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
 ></usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb>
 </usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmitt10.pfb>
 </usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></
 usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></us
 r/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr5.pfb></usr/l
-ocal/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/loca
-l/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local
-/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt9.pfb>
-Output written on lab7_week2.pdf (4 pages, 122895 bytes).
+ocal/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/loca
+l/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/t
+exlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/te
+xlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt9.pfb>
+Output written on lab7_week2.pdf (4 pages, 132460 bytes).
 PDF statistics:
- 95 PDF objects out of 1000 (max. 8388607)
- 70 compressed objects within 1 object stream
- 16 named destinations out of 1000 (max. 500000)
+ 102 PDF objects out of 1000 (max. 8388607)
+ 75 compressed objects within 1 object stream
+ 17 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)
 

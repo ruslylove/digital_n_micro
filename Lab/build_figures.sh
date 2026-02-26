@@ -33,12 +33,16 @@ EOF
 }
 
 # Compile all figures
-compile_figure "Lab/tex/lab6p1_gated_rs_latch.tex" "gated_rs_latch"
-compile_figure "Lab/tex/lab6p1_rs_latch_luts.tex" "rs_latch_luts"
-compile_figure "Lab/tex/lab6p1_rs_latch_timing.tex" "rs_latch_timing"
-compile_figure "Lab/tex/lab6p2_gated_d_latch.tex" "gated_d_latch"
-compile_figure "Lab/tex/lab6p3_master_slave_flip_flop.tex" "master_slave_flip_flop"
-compile_figure "Lab/tex/lab6p4_three_storage_elements.tex" "three_storage_elements"
-compile_figure "Lab/tex/lab6p4_three_storage_elements_timing.tex" "three_storage_elements_timing"
+compile_figure "tex/lab6p1_gated_rs_latch.tex" "gated_rs_latch"
+compile_figure "tex/lab6p1_rs_latch_luts.tex" "rs_latch_luts"
+compile_figure "tex/lab6p1_rs_latch_timing.tex" "rs_latch_timing"
+compile_figure "tex/lab6p2_gated_d_latch.tex" "gated_d_latch"
+compile_figure "tex/lab6p3_master_slave_flip_flop.tex" "master_slave_flip_flop"
+compile_figure "tex/lab6p4_three_storage_elements.tex" "three_storage_elements"
+compile_figure "tex/lab6p4_three_storage_elements_timing.tex" "three_storage_elements_timing"
+compile_figure "tex/lab7p4_slow_counter.tex" "slow_counter"
+compile_figure "tex/lab7p4_slow_counter_timing.tex" "slow_counter_timing"
+compile_figure "tex/lab7p5_rotate_small.tex" "rotate_small"
+compile_figure "tex/lab7p6_rotate_large.tex" "rotate_large"
 
 echo "Done!"

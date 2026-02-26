@@ -20,7 +20,7 @@
     
     % Connections
     \draw [->, thick] (large_cnt.east) -- (cmp.west);
-    \draw [->, thick] (cmp.east) -- (small_cnt.west) node[midway, above] {Enable (E)} node[midway, below] {1 Hz Enable};
+    \draw [->, thick] (cmp.east) -- (small_cnt.west) node[midway, above] {Enable (E)} node[midway, below, align=center] {1 Hz Enable\\(1/50 MHz pulse)};
     
     % Clock for Small Counter (Same 50MHz)
     % The diagram in Lab 4 might imply the small counter is enabled by the large one but clocked by the same clock
