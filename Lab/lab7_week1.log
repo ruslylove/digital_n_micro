@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.11.22)  2 JAN 2026 14:38
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (TeX Live 2025) (preloaded format=pdflatex 2025.11.27)  25 FEB 2026 13:58
 entering extended mode
  \write18 enabled.
  %&-line parsing enabled.
@@ -822,24 +822,24 @@ File: l3backend-pdftex.def 2024-05-08 L3 backend support: PDF output (pdfTeX)
 (./lab7_week1.aux)
 \openout1 = `lab7_week1.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 33.
-LaTeX Font Info:    ... okay on input line 33.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 33.
-LaTeX Font Info:    ... okay on input line 33.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 33.
-LaTeX Font Info:    ... okay on input line 33.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 33.
-LaTeX Font Info:    ... okay on input line 33.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 33.
-LaTeX Font Info:    ... okay on input line 33.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 33.
-LaTeX Font Info:    ... okay on input line 33.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 33.
-LaTeX Font Info:    ... okay on input line 33.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 33.
-LaTeX Font Info:    ... okay on input line 33.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 33.
-LaTeX Font Info:    ... okay on input line 33.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
 
 (/usr/local/texlive/2025/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
@@ -897,17 +897,17 @@ e
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-Package hyperref Info: Link coloring OFF on input line 33.
+Package hyperref Info: Link coloring OFF on input line 36.
 (./lab7_week1.out) (./lab7_week1.out)
 \@outlinefile=\write5
 \openout5 = `lab7_week1.out'.
 
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <12> on input line 36.
+(Font)              <12> on input line 39.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 36.
+(Font)              <8> on input line 39.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 36.
+(Font)              <6> on input line 39.
  (./tex/lab7p1_counter_struct.tex
 LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <9> on input line 24.
@@ -918,11 +918,11 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 \pydata@fh@_54E66FA6A6AFC9D14F1EA3D12E05AACF.data.minted=\write6
 \openout6 = `_54E66FA6A6AFC9D14F1EA3D12E05AACF.data.minted'.
 
-runsystem(latexminted config  --timestamp 20260102143853 54E66FA6A6AFC9D14F1EA3
+runsystem(latexminted config  --timestamp 20260225135828 54E66FA6A6AFC9D14F1EA3
 D12E05AACF)...executed.
 
  (./_54E66FA6A6AFC9D14F1EA3D12E05AACF.config.minted)
-runsystem(latexminted cleanconfig  --timestamp 20260102143853 54E66FA6A6AFC9D14
+runsystem(latexminted cleanconfig  --timestamp 20260225135828 54E66FA6A6AFC9D14
 F1EA3D12E05AACF)...executed.
 
  (./_minted/trac.style.minted)
@@ -935,7 +935,7 @@ LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <9> not available
 
 {/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
 (./tex/numeric_std_conversions.tex)
-(./_minted/162F065F5AC5CAFB2EEFC90D99BF3F80.highlight.minted)
+(./_minted/01E6A0D71D2D2B7BCC4BF8E0960671AD.highlight.minted)
 
 [2] (./tex/lab7p3_lpm_block.tex)
 
@@ -948,10 +948,10 @@ Package rerunfilecheck Info: File `lab7_week1.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 46358 strings out of 473190
- 1158944 string characters out of 5715799
- 1949698 words of memory out of 5000000
- 69065 multiletter control sequences out of 15000+600000
+ 46362 strings out of 473190
+ 1159118 string characters out of 5715799
+ 1949724 words of memory out of 5000000
+ 69069 multiletter control sequences out of 15000+600000
  564032 words of font info for 54 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  96i,11n,101p,490b,1130s stack positions out of 10000i,1000n,20000p,200000b,200000s
@@ -966,7 +966,7 @@ texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/tex
 live/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texliv
 e/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/local/texlive
 /2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt9.pfb>
-Output written on lab7_week1.pdf (3 pages, 156434 bytes).
+Output written on lab7_week1.pdf (3 pages, 156426 bytes).
 PDF statistics:
  112 PDF objects out of 1000 (max. 8388607)
  84 compressed objects within 1 object stream
