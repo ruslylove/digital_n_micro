@@ -1,0 +1,287 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{minted}
+\usepackage{circuitikz}
+\usepackage{tikz}
+\usetikzlibrary{shapes, arrows, calc, positioning, circuits.logic.US, circuits.logic.IEC}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{hyperref}
+\usemintedstyle{trac}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\small 010153101 Digital Circuit and Microprocessor Fundamental \\ Semester 2/2025}
+\fancyfoot[R]{\thepage}
+
+% Redefine plain style to match fancy style (for the title page)
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyfoot[C]{\small 010153101 Digital Circuit and Microprocessor Fundamental \\ Semester 2/2025}%
+  \fancyfoot[R]{\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+}
+
+\title{Laboratory Exercise 0 \\ Introduction to the Digital Laboratory (Pre-session Lab)}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section*{Introduction}
+This first laboratory session requires no knowledge of logic design. Its purpose is to make you comfortable with the equipment and the design flow that you will use for the rest of the course: the breadboard, the power supply, the digital multimeter, the oscilloscope, standard TTL (Transistor-Transistor Logic) ICs, and the Intel Quartus Prime software together with the DE0-CV FPGA board. Along the way you will see, with your own measurements, that a digital signal is just an analog voltage interpreted as '0' or '1', and that a TTL input draws current. The lab is planned for two hours (see the time given in each part). Logisim, a light-weight tool for drawing and simulating small circuits, is introduced in Lab 1; from then on you can use it, in addition to Quartus Prime, for schematic design and simulation.
+
+\section*{Objectives}
+\begin{enumerate}
+    \item To build a circuit on a breadboard safely and to power it correctly.
+    \item To use a digital multimeter and an oscilloscope to measure DC voltages and time-varying signals.
+    \item To calculate and verify the current in an LED circuit using Ohm's law.
+    \item To represent a binary number with switches and LEDs.
+    \item To understand the input voltage levels and the input current of a TTL gate, and why the pull-down resistor of an input must be small.
+    \item To create, compile and download a simple Quartus Prime schematic project to the DE0-CV board.
+\end{enumerate}
+
+\section*{Equipment Required}
+\begin{itemize}
+    \item DC Power Supply (+5V)
+    \item Digital Multimeter
+    \item Digital Oscilloscope and probes
+    \item Function Generator
+    \item Breadboard and Jumper Wires
+    \item TTL IC: 74LS04 (Hex Inverter / NOT Gate)
+    \item Resistors: $330\Omega$ (LEDs and pull-down), $1\,k\Omega$
+    \item $10\,k\Omega$ resistor
+    \item 4-position DIP switch
+    \item LEDs (Red/Green)
+    \item Intel DE0-CV board with USB cable, and a PC with Quartus Prime installed
+    \item (Optional) Logisim or Logisim-evolution: a light-weight tool for drawing and simulating small circuits at home or in the laboratory. It cannot program the DE0-CV board, so Quartus Prime is still needed for the board.
+\end{itemize}
+
+\section*{Safety Notes}
+\begin{itemize}
+    \item \textbf{Always switch the power supply OFF} before changing any wiring on the breadboard.
+    \item Set the supply to $+5\,\mathrm{V}$ and confirm it with the multimeter \emph{before} connecting it to the breadboard. TTL ICs can be damaged by more than $7\,\mathrm{V}$.
+    \item Never connect a power rail directly to ground. Never connect an LED to $+5\,\mathrm{V}$ without a series resistor.
+    \item Connect Pin 14 ($V_{CC}$) and Pin 7 (GND) of every IC \emph{first}, and double-check them before switching on.
+    \item The input/output pins of the FPGA on the DE0-CV board work at $3.3\,\mathrm{V}$. \textbf{Never connect the 5\,V TTL circuits on your breadboard to the FPGA pins of the board.}
+\end{itemize}
+
+\section*{Part I: Breadboard, Power and Ohm's Law (about 20 min)}
+
+\subsection*{Breadboard Basics}
+A breadboard connects holes in a pattern: the holes in each short vertical column (5 holes) are connected together, while the long rows along the edge (power rails) are connected along their whole length. Use the red rail for $+5\,\mathrm{V}$ and the blue rail for ground.
+
+\begin{enumerate}
+    \item Turn on the power supply, set it to $+5\,\mathrm{V}$ and measure it with the multimeter. Record the value: \underline{\hspace{2cm}} V.
+    \item Turn the supply off. Connect the supply to the power rails of the breadboard (red for $+5\,\mathrm{V}$, blue for GND).
+\end{enumerate}
+
+\subsection*{LED and Series Resistor}
+An LED conducts current only in one direction (from the anode, the longer leg, to the cathode). Its brightness depends on the current, which is limited by a series resistor.
+
+\begin{figure}[H]
+    \centering
+    \begin{circuitikz}
+        \draw (0,3) node[vcc] {+5V}
+        to[R, l=$R$] (0,1.5)
+        to[led, l=LED] (0,0)
+        node[ground] {};
+        \draw (0,1.5) to[short, *-] (1.5,1.5) node[right] {$V_R$ measured across $R$};
+    \end{circuitikz}
+    \caption{LED with a series resistor.}
+    \label{fig:led_r}
+\end{figure}
+
+Build the circuit of Figure \ref{fig:led_r} with $R = 330\,\Omega$ and then with $R = 1\,k\Omega$. For each resistor, measure the voltage across the resistor ($V_R$) and across the LED ($V_{LED}$). Calculate the LED current from Ohm's law, $I = V_R / R$.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        \textbf{$R$} & \textbf{$V_R$ (V)} & \textbf{$V_{LED}$ (V)} & \textbf{$I = V_R/R$ (mA)} & \textbf{Brightness} \\
+        \hline
+        $330\,\Omega$ & & & & \\
+        \hline
+        $1\,k\Omega$ & & & & \\
+        \hline
+    \end{tabular}
+    \caption{LED current measurement.}
+    \label{tab:led_current}
+\end{table}
+
+\begin{enumerate}
+    \item Check your result: does $5\,\mathrm{V} = V_R + V_{LED}$ (approximately)?
+    \item A typical red LED needs about $10\,\mathrm{mA}$ for good brightness. What is the smallest standard resistor that keeps the current below $20\,\mathrm{mA}$? Show your calculation.
+\end{enumerate}
+
+\section*{Part II: Switches, LEDs and Binary Numbers (about 25 min)}
+
+\subsection*{Switch Input Circuit}
+A mechanical switch alone does not produce a clean logic level: when it is open, the input is left ``floating''. A resistor connects the input to ground so that an open switch gives a well-defined logic 0. Build the switch circuit of Figure \ref{fig:switch_circuit0} for each of the four DIP switches.
+
+\begin{figure}[H]
+    \centering
+    \begin{circuitikz}
+        \draw (0,2) node[vcc] (vcc) {+5V}
+        to[spst, l=DIP Switch] (0,0.5) -- (0,0)
+        to[R, l_=$330\Omega$] (0,-2) node[ground] (gnd) {};
+        \draw (0,0) to[short,*-] (3.5,0) node[right] {Logic signal $X$};
+    \end{circuitikz}
+    \caption{Input switch circuit (active high): $X=1$ when the switch is ON, $X=0$ when OFF.}
+    \label{fig:switch_circuit0}
+\end{figure}
+
+\subsection*{LED Indicator Stage}
+A 74LS-series gate output can \emph{sink} (absorb) much more current than it can \emph{source} (supply): about $8\,\mathrm{mA}$ versus only $0.4\,\mathrm{mA}$. For this reason, throughout this course, LEDs on the breadboard are connected between $+5\,\mathrm{V}$ and the output of an inverter, as in Figure \ref{fig:led_stage}. The LED is lit when the inverter output is low, that is, when its input $X$ is high. We will call this circuit the \textbf{LED indicator stage}.
+
+\begin{figure}[H]
+    \centering
+    \begin{circuitikz}[circuitikz/logic ports=ieee]
+        \draw (0,0) node[not port] (n) {};
+        \draw (n.in) -- ++(-1,0) node[left] {$X$};
+        \draw (n.out) -- ++(1.2,0) coordinate (o) node[circ] {};
+        \draw (o) ++(0,3.5) node[vcc] {+5V} to[R, l=$330\Omega$] ++(0,-1.5) to[led, l=LED] (o);
+    \end{circuitikz}
+    \caption{LED indicator stage (one inverter of the 74LS04): the LED is ON when $X = 1$.}
+    \label{fig:led_stage}
+\end{figure}
+
+\noindent\textbf{Note:} the LED symbol is drawn so that its cathode is connected to the inverter output and its anode to the resistor.
+
+\subsection*{Binary Display}
+\begin{enumerate}
+    \item Place the 74LS04 on the breadboard and connect Pin 14 to $+5\,\mathrm{V}$ and Pin 7 to GND.
+    \item Connect the four switch signals $X_3, X_2, X_1, X_0$ (Figure \ref{fig:switch_circuit0}) to four inverter inputs, and an LED indicator stage to each inverter output. LED$_i$ should be ON when switch $X_i$ is ON.
+    \item Set the switches to the patterns of Table \ref{tab:binary_leds}. Write the decimal value represented by the pattern, and complete the empty rows with patterns of your choice.
+\end{enumerate}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|c|}
+        \hline
+        $X_3$ & $X_2$ & $X_1$ & $X_0$ & \textbf{Hex} & \textbf{Decimal} \\
+        \hline
+        0 & 0 & 0 & 0 & & \\
+        0 & 1 & 0 & 1 & & \\
+        1 & 0 & 1 & 0 & & \\
+        1 & 1 & 1 & 1 & & \\
+        & & & & 7 & \\
+        & & & & & 12 \\
+        \hline
+    \end{tabular}
+    \caption{Switch patterns and the numbers they represent.}
+    \label{tab:binary_leds}
+\end{table}
+
+\begin{enumerate}
+    \setcounter{enumi}{3}
+    \item How many different patterns can 4 switches represent? How many for 8 switches? \underline{\hspace{4cm}}
+\end{enumerate}
+
+\section*{Part III: TTL Inputs and Logic Levels (about 25 min)}
+
+Digital circuits still work with voltages: a gate input decides whether the voltage it sees is a '0' or a '1' by comparing it with threshold levels. For the 74LS04 the data sheet guarantees:
+\begin{itemize}
+    \item Input is read as logic 0 if $V_{in} \le V_{IL(max)} = 0.8\,\mathrm{V}$, and as logic 1 if $V_{in} \ge V_{IH(min)} = 2.0\,\mathrm{V}$. Between these values the result is not guaranteed.
+    \item The output is $V_{OL} \le 0.5\,\mathrm{V}$ for logic 0 and $V_{OH} \ge 2.7\,\mathrm{V}$ for logic 1.
+    \item \textbf{Input currents:} when the input is low, the gate \emph{sources} up to $I_{IL} = 0.4\,\mathrm{mA}$ out of the input pin; when the input is high, it \emph{absorbs} only $I_{IH} = 20\,\mu\mathrm{A}$.
+\end{itemize}
+
+\subsection*{Input Current and the Pull-down Resistor}
+A TTL input is not a high-impedance input like an input of a CMOS gate. The current $I_{IL}$ flows out of the pin and through the pull-down resistor $R$ of the switch circuit (Figure \ref{fig:switch_circuit0}), so the voltage at the input of the gate is approximately $V_{in} \approx I_{IL}\cdot R$ when the switch is OFF. This voltage must stay below $V_{IL(max)}$.
+
+\begin{enumerate}
+    \item Calculate the largest pull-down resistor that guarantees a valid logic 0: $R_{max} = V_{IL(max)}/I_{IL(max)} = $ \underline{\hspace{2cm}} $\Omega$. For $R=330\,\Omega$, $V_{in}\approx$ \underline{\hspace{2cm}} V.
+    \item Build one switch circuit with $R = 330\,\Omega$ and connect it to an inverter of the 74LS04 with an LED indicator stage on the output. With the switch OFF, measure $V_{in}$ at the gate input with the multimeter, and note the LED state.
+    \item Replace $R$ by $1\,k\Omega$ and then by $10\,k\Omega$ and repeat. Complete Table \ref{tab:pulldown}.
+\end{enumerate}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        $R$ & $V_{in}$ measured (switch OFF) & LED state & Logic level read by the gate & $V_{in}$ valid 0? \\
+        \hline
+        $330\,\Omega$ & & & & \\ \hline
+        $1\,k\Omega$ & & & & \\ \hline
+        $10\,k\Omega$ & & & & \\ \hline
+    \end{tabular}
+    \caption{Effect of the pull-down resistor on a 74LS input.}
+    \label{tab:pulldown}
+\end{table}
+
+\begin{enumerate}
+    \setcounter{enumi}{3}
+    \item Explain the results. Why is a large pull-down resistor (for example $10\,k\Omega$), which is common in CMOS circuits, not suitable for TTL inputs?
+    \item A \emph{pull-up} resistor to $+5\,\mathrm{V}$ that holds an input high only has to supply $I_{IH} = 20\,\mu\mathrm{A}$. Why is a pull-up much less critical than a pull-down for TTL? What is the price of a small resistor, in terms of current, when the switch connects it to the opposite level?
+\end{enumerate}
+
+\subsection*{Oscilloscope Observation (about 10 min)}
+\begin{enumerate}
+    \item Set the function generator to a $1\,\mathrm{kHz}$ \textbf{sine wave}, $0$--$5\,\mathrm{V}$ (use the DC-offset control). Connect it to the input of an inverter and to Channel 1 of the oscilloscope. Connect Channel 2 to the inverter output. The oscilloscope ground clips must be connected to the circuit ground.
+    \item Observe both channels. What is the shape of $V_{out}$? \underline{\hspace{4cm}} Sketch the capture and explain how an analog waveform becomes a digital signal.
+    \item (\textit{If time permits}) Change the generator to a \textbf{square wave} of about $1\,\mathrm{MHz}$ and measure the propagation delay between the $50\%$ points of the input and output edges: $t_{pd}\approx$ \underline{\hspace{2cm}} ns.
+\end{enumerate}
+
+\section*{Part IV: Introduction to Quartus Prime and the DE0-CV Board (about 40 min)}
+
+In this part you will go through the complete FPGA design flow once, using a trivially simple circuit. No VHDL is needed: you will draw the circuit as a schematic. The DE0-CV board has 10 slide switches (SW9--SW0), 4 push buttons (KEY3--KEY0), and 10 red LEDs (LEDR9--LEDR0). \textbf{The push buttons produce logic 0 while pressed.}
+
+\begin{enumerate}
+    \item Start Quartus Prime and create a new project with \textbf{File $\rightarrow$ New Project Wizard}. Name the project and the top-level entity \texttt{lab0}. Select the device used on the DE0-CV board (Cyclone V 5CEBA4F23C7).
+    \item Create a new Block Diagram/Schematic File (\textbf{File $\rightarrow$ New $\rightarrow$ Block Diagram/Schematic File}) and save it as \texttt{lab0.bdf}.
+    \item Place four input pins named \texttt{SW[3..0]}, and four output pins named \texttt{LEDR[3..0]}. Connect each switch directly to the LED with the same number by wires. Use the same bus names that appear in the DE0-CV pin-assignment file or User Manual.
+    \item Add one more input pin \texttt{KEY0}, one \textbf{NOT} gate and one output pin \texttt{LEDR9}. Connect $\mathtt{KEY0}\rightarrow\mathtt{NOT}\rightarrow\mathtt{LEDR9}$.
+    \item Make the pin assignments with the \textbf{Pin Planner}, using the DE0-CV User Manual (or the pin-assignment file supplied by your instructor).
+    \item Compile the project (\textbf{Processing $\rightarrow$ Start Compilation}). Note the number of logic elements (or ALMs) used: \underline{\hspace{2cm}}.
+    \item Connect the board using the USB cable, open the \textbf{Programmer}, select the USB-Blaster, and download the \texttt{lab0.sof} file.
+    \item Operate the switches and the push button and complete Table \ref{tab:de0}.
+\end{enumerate}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|}
+        \hline
+        \textbf{Action} & \textbf{LEDs lit} \\
+        \hline
+        All switches OFF; KEY0 not pressed & \\
+        \hline
+        SW3 ON & \\
+        \hline
+        SW0, SW2 ON & \\
+        \hline
+        KEY0 pressed & \\
+        \hline
+    \end{tabular}
+    \caption{Observed behavior of the DE0-CV circuit.}
+    \label{tab:de0}
+\end{table}
+
+\begin{enumerate}
+    \setcounter{enumi}{8}
+    \item Why is a NOT gate necessary for \texttt{KEY0} if we want the LED to light \emph{while} the button is pressed?
+    \item Name the four main steps (compiler stages) that Quartus runs during compilation and describe in one sentence what each does.
+\end{enumerate}
+
+\section*{Check-off}
+Before leaving the laboratory, show your instructor or teaching assistant:
+\begin{enumerate}
+    \item Table \ref{tab:led_current} and the LED current calculation.
+    \item The binary display of Part II working for all switches.
+    \item Table \ref{tab:pulldown} and the oscilloscope capture of Part III.
+    \item The circuit running on the DE0-CV board (Part IV).
+\end{enumerate}
+
+\vspace{1cm}
+\noindent \textbf{Updated By:} R. Sutthaweekul \\
+\textbf{Version:} 1.0 \\
+\textbf{Release Date:} 2026-11-11
+
+\end{document}

@@ -1,0 +1,213 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{minted}
+\usepackage{circuitikz}
+\usepackage{tikz}
+\usetikzlibrary{shapes, arrows, calc, positioning, circuits.logic.US, circuits.logic.IEC}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{hyperref}
+\usemintedstyle{trac}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\small 010153101 Digital Circuit and Microprocessor Fundamental \\ Semester 2/2025}
+\fancyfoot[R]{\thepage}
+
+% Redefine plain style to match fancy style (for the title page)
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyfoot[C]{\small 010153101 Digital Circuit and Microprocessor Fundamental \\ Semester 2/2025}%
+  \fancyfoot[R]{\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+}
+
+\title{Laboratory Exercise 1 \\ Logic Gates and Boolean Algebra}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section*{Introduction}
+This laboratory exercise accompanies Lecture 2 (Logic Circuits). You will confirm De Morgan's theorem with real TTL integrated circuits, and then go from a word problem to a truth table, a Boolean expression, a schematic, a simulation, and finally a working circuit on the DE0-CV board. No VHDL is needed in this lab: all circuits are built on the breadboard or drawn as schematics in Quartus Prime.
+
+\section*{Objectives}
+\begin{enumerate}
+    \item To build a circuit from NAND, NOT and OR gates and to measure its logic levels.
+    \item To verify De Morgan's theorem experimentally.
+    \item To derive a Boolean expression in Sum-of-Products (SOP) form from a truth table.
+    \item To use Boolean algebra to simplify an expression and to prove by simulation that the simplified circuit is equivalent to the original.
+    \item To draw a schematic, simulate it with a waveform file and implement it on the DE0-CV board.
+\end{enumerate}
+
+\section*{Equipment Required}
+\begin{itemize}
+    \item DC Power Supply (+5V), Digital Multimeter
+    \item Breadboard and Jumper Wires
+    \item TTL ICs: 74LS00 (NAND), 74LS04 (NOT), 74LS32 (OR)
+    \item Resistors: $330\Omega$ (for LEDs and pull-down)
+    \item 4-position DIP switch
+    \item LEDs (Red/Green)
+    \item Intel DE0-CV board and a PC with Quartus Prime
+    \item (Optional) Logisim or Logisim-evolution: a light-weight tool for drawing and simulating small circuits at home or in the laboratory. It cannot program the DE0-CV board, so Quartus Prime is still needed for the board.
+\end{itemize}
+
+\section*{Pre-lab (complete before the session)}
+The laboratory session is two hours long, so the paper work is done in advance.
+\begin{enumerate}
+    \item Read the \textbf{switch input circuit} and the \textbf{LED indicator stage} of Lab 0. Every gate output that you observe on the breadboard is connected to an LED indicator stage (an inverter of the 74LS04 followed by an LED and a $330\,\Omega$ resistor to $+5\,\mathrm{V}$), so the LED is ON when the observed output is logic 1. The pin numbers of the ICs of this lab are given in Table \ref{tab:pinout}.
+    \item \textbf{Tool tip.} You can check your pre-lab results at home with \textbf{Logisim}: draw the circuit with Input pins, gates and an Output pin and toggle the inputs with the Poke tool; the \emph{Combinational Analysis} window (Window menu) turns a truth table into an expression and a circuit, and shows the minimized expression.
+    \item \textbf{Three-way light.} A room has three doors, each with a switch ($x_1, x_2, x_3$) that controls one light $f$. The light must toggle whenever any switch is flipped, and it is OFF when all switches are open. Complete the truth table (Table \ref{tab:three_way}) and write the canonical SOP expression: \\[0.2cm]
+    $f = $ \underline{\hspace{10cm}}
+    \item \textbf{Car safety alarm.} The alarm $A$ must sound if (a) the key is in ($K=1$) and the door is not closed ($D=0$), \textbf{or} (b) the door is closed ($D=1$), the key is in ($K=1$), the driver is in the seat ($S=1$) and the seat belt is not fastened ($B=0$). \\[0.2cm]
+    Expression from the words: $A_1 = $ \underline{\hspace{7cm}} \\[0.2cm]
+    Simplified with Boolean algebra (show the steps and the properties used; hint: factor $K$, then use $X + X'Y = X + Y$): \\[0.2cm]
+    $A_2 = $ \underline{\hspace{7cm}}
+\end{enumerate}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|c|c|c|c|c|c|}
+        \hline
+        \textbf{IC} & \textbf{Gate 1} & \textbf{Gate 2} & \textbf{Gate 3} & \textbf{Gate 4} & \textbf{GND} & \textbf{$V_{CC}$} \\
+        \hline
+        74LS00 (NAND), 74LS32 (OR) & 1, 2 $\rightarrow$ 3 & 4, 5 $\rightarrow$ 6 & 9, 10 $\rightarrow$ 8 & 12, 13 $\rightarrow$ 11 & 7 & 14 \\
+        \hline
+        74LS04 (NOT) & \multicolumn{4}{c|}{1$\rightarrow$2, 3$\rightarrow$4, 5$\rightarrow$6, 9$\rightarrow$8, 11$\rightarrow$10, 13$\rightarrow$12} & 7 & 14 \\
+        \hline
+    \end{tabular}
+    \caption{Pin numbers of the TTL ICs used in this laboratory. Each gate is listed as (input, input $\rightarrow$ output).}
+    \label{tab:pinout}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        \textbf{Minterm} & $x_1$ & $x_2$ & $x_3$ & $f$ \\
+        \hline
+        $m_0$ & 0 & 0 & 0 & \\
+        $m_1$ & 0 & 0 & 1 & \\
+        $m_2$ & 0 & 1 & 0 & \\
+        $m_3$ & 0 & 1 & 1 & \\
+        $m_4$ & 1 & 0 & 0 & \\
+        $m_5$ & 1 & 0 & 1 & \\
+        $m_6$ & 1 & 1 & 0 & \\
+        $m_7$ & 1 & 1 & 1 & \\
+        \hline
+    \end{tabular}
+    \caption{Truth table of the three-way light control.}
+    \label{tab:three_way}
+\end{table}
+
+\section*{Part I: De Morgan's Theorem on the Breadboard (about 30 min)}
+
+De Morgan's theorem states that $(A\cdot B)' = A' + B'$ (and $(A+B)' = A'\cdot B'$). You will check the first law with real gates.
+
+\begin{figure}[H]
+    \centering
+    \begin{circuitikz}[circuitikz/logic ports=ieee]
+        % Upper circuit: NAND
+        \draw (0,2) node[nand port] (nand) {};
+        \draw (nand.in 1) -- ++(-1,0) node[left] {$A$};
+        \draw (nand.in 2) -- ++(-1,0) node[left] {$B$};
+        \draw (nand.out) -- ++(1,0) node[right] {$Y_1=(A\cdot B)'$};
+        % Lower circuit: NOT, NOT, OR
+        \draw (0,-0.5) node[not port, scale=0.7] (n1) {};
+        \draw (0,-2) node[not port, scale=0.7] (n2) {};
+        \draw (3,-1.25) node[or port] (or) {};
+        \draw (n1.in) -- ++(-1,0) node[left] {$A$};
+        \draw (n2.in) -- ++(-1,0) node[left] {$B$};
+        \draw (n1.out) -- ++(0.3,0) |- (or.in 1);
+        \draw (n2.out) -- ++(0.3,0) |- (or.in 2);
+        \draw (or.out) -- ++(1,0) node[right] {$Y_2=A'+B'$};
+    \end{circuitikz}
+    \caption{The two sides of De Morgan's theorem.}
+    \label{fig:demorgan}
+\end{figure}
+
+\begin{enumerate}
+    \item Build two switch input circuits for $A$ and $B$.
+    \item Build both circuits of Figure \ref{fig:demorgan} on the breadboard using the same switches, each output with its own LED indicator stage: $Y_1$ with one NAND gate of the 74LS00, and $Y_2$ with two inverters of the 74LS04 and one OR gate of the 74LS32. Connect Pin 14 and Pin 7 of every IC first.
+    \item Complete Table \ref{tab:demorgan}. Is $Y_1 = Y_2$ for all four input combinations? Is $Y_1$ the complement of $A\cdot B$ (compare with the AND truth table)?
+    \item Use the multimeter to measure the voltage at the output $Y_1$ for logic 0 and logic 1: \underline{\hspace{1.5cm}} V and \underline{\hspace{1.5cm}} V.
+    \item An input of a NAND gate is left unconnected (``floating''). What logic level does the gate read? Why should unused inputs always be tied to a defined level?
+\end{enumerate}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        $A$ & $B$ & $Y_1=(A\cdot B)'$ & $Y_2=A'+B'$ \\
+        \hline
+        0 & 0 & & \\
+        0 & 1 & & \\
+        1 & 0 & & \\
+        1 & 1 & & \\
+        \hline
+    \end{tabular}
+    \caption{Verification of De Morgan's theorem.}
+    \label{tab:demorgan}
+\end{table}
+
+\section*{Part II: Three-Way Light Control in Quartus (about 40 min)}
+
+\begin{enumerate}
+    \item Create a new Quartus project \texttt{lab1} for the DE0-CV board and draw the schematic (Block Editor) of the SOP expression of your pre-lab using NOT, AND3 and OR gates. How many gates of each type did you use? \underline{\hspace{4cm}} (You may first draw and test the same circuit in Logisim; the board test still needs Quartus.)
+    \item Compile the schematic and perform a functional simulation using a vector waveform file (*.vwf) as in Lab 5.5. Apply all 8 input combinations in order $000, 001, \ldots, 111$ and capture the waveform (in Logisim: toggle the inputs with the Poke tool, or use the chronogram of Logisim-evolution, and capture a screenshot). Compare it with your truth table.
+    \item Assign $x_1, x_2, x_3$ to switches SW2, SW1, SW0 and $f$ to LEDR0. Download the circuit to the board and test it: starting from all switches OFF, flip \emph{one} switch at a time and check that the light toggles every time.
+\end{enumerate}
+
+\section*{Part III: Car Safety Alarm in Quartus (about 25 min)}
+
+\begin{enumerate}
+    \item In the same project, draw \emph{both} circuits $A_1$ and $A_2$ of your pre-lab with the same four inputs $K, D, S, B$.
+    \item Simulate (Quartus waveform or Logisim) with all 16 combinations and verify that the two outputs are always identical. Gates in $A_1$: \underline{\hspace{1.5cm}} \; Gates in $A_2$: \underline{\hspace{1.5cm}}
+    \item Implement $A_2$ on the board with $K$ = SW0, $D$ = SW1, $S$ = SW2, $B$ = SW3 and $A$ = LEDR0, and test the four scenarios of Table \ref{tab:alarm}.
+\end{enumerate}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|c|c|c|c|c|}
+        \hline
+        \textbf{Scenario} & $K$ & $D$ & $S$ & $B$ & $A$ (LEDR0) \\
+        \hline
+        Key out, door open & 0 & 0 & 1 & 0 & \\
+        Key in, door open & 1 & 0 & 0 & 0 & \\
+        Key in, door closed, seated, belt off & 1 & 1 & 1 & 0 & \\
+        Key in, door closed, seated, belt on & 1 & 1 & 1 & 1 & \\
+        \hline
+    \end{tabular}
+    \caption{Alarm test scenarios.}
+    \label{tab:alarm}
+\end{table}
+
+\section*{Extension (take-home, or if time permits)}
+\begin{enumerate}
+    \item Verify the second De Morgan law, $(A+B)' = A'\cdot B'$, on the breadboard (74LS02 NOR, 74LS04, 74LS08). \textbf{Note that the pin order of the 74LS02 is different:} gate inputs are pins 2,3 $\rightarrow$ 1; 5,6 $\rightarrow$ 4; 8,9 $\rightarrow$ 10; 11,12 $\rightarrow$ 13.
+    \item Replace your three-way light circuit with $f = x_1 \oplus x_2 \oplus x_3$ (XOR gates). Show by simulation that it has the same waveform as the SOP circuit. Which one has fewer gates?
+    \item The multiplexer is another important example of Lecture 2. You will build and test one on the breadboard in Lab 5.5.
+\end{enumerate}
+
+\section*{Check-off}
+Show your instructor or teaching assistant:
+\begin{enumerate}
+    \item Table \ref{tab:demorgan} completed from your breadboard measurements.
+    \item The waveform and the working board for the three-way light control.
+    \item The equivalence waveform of the two alarm circuits and the working board.
+\end{enumerate}
+
+\vspace{1cm}
+\noindent \textbf{Updated By:} R. Sutthaweekul \\
+\textbf{Version:} 1.0 \\
+\textbf{Release Date:} 2026-11-11
+
+\end{document}

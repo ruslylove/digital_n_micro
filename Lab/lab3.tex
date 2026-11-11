@@ -1,0 +1,333 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{minted}
+\usepackage{circuitikz}
+\usepackage{tikz}
+\usetikzlibrary{shapes, arrows, calc, positioning, circuits.logic.US, circuits.logic.IEC}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{hyperref}
+\usemintedstyle{trac}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\small 010153101 Digital Circuit and Microprocessor Fundamental \\ Semester 2/2025}
+\fancyfoot[R]{\thepage}
+
+% Redefine plain style to match fancy style (for the title page)
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyfoot[C]{\small 010153101 Digital Circuit and Microprocessor Fundamental \\ Semester 2/2025}%
+  \fancyfoot[R]{\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+}
+
+\title{Laboratory Exercise 3 \\ Arithmetic Circuits and Introduction to VHDL}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section*{Introduction}
+This laboratory exercise accompanies Lecture 4 (Number Representation and Arithmetic Circuits). You will build a full adder from gates on the breadboard, and then describe the same circuit in \textbf{VHDL}, the hardware description language used from this point to the end of the course. The full adder is then used as a building block of a 4-bit ripple-carry adder and an adder/subtractor for two's complement numbers with overflow detection. The VHDL part of this laboratory is a guided introduction: all the VHDL syntax that you need is explained here, and the code you must type is mostly given.
+
+\section*{Objectives}
+\begin{enumerate}
+    \item To build and test a full adder from XOR, AND and OR gates.
+    \item To write, compile and simulate a first VHDL design (entity, architecture, signals, concurrent assignments).
+    \item To build a larger circuit from smaller ones by component instantiation (structural VHDL).
+    \item To implement a 4-bit ripple-carry adder (and, as an extension, a two's complement adder/subtractor with overflow detection).
+    \item (Extension) To observe that the delay of a ripple-carry adder grows with the number of bits.
+\end{enumerate}
+
+\section*{Equipment Required}
+\begin{itemize}
+    \item DC Power Supply (+5V), Digital Multimeter
+    \item Breadboard and Jumper Wires
+    \item TTL ICs: 74LS86 (XOR), 74LS08 (AND), 74LS32 (OR), 74LS04 (NOT, for LED indicator stages)
+    \item Resistors: $330\Omega$, DIP switches, LEDs
+    \item Intel DE0-CV board and a PC with Quartus Prime
+\end{itemize}
+
+\section*{Pre-lab (complete before the session)}
+The session is two hours long. Read the subsection ``Anatomy of a VHDL file'' of Part II \emph{before} the session, and complete:
+\begin{enumerate}
+    \item Convert the following to 4-bit two's complement and fill Table \ref{tab:prelab}: $+5$, $-3$, $-8$. Compute $5 + (-3)$, $5+6$ and $-5 + (-4)$ in 4-bit two's complement and state whether each operation \textbf{overflows}.
+    \item Write the Boolean equations of a full adder: $S = $ \underline{\hspace{3cm}} \quad $C_{out} = $ \underline{\hspace{4cm}}
+\end{enumerate}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        \textbf{Operation} & \textbf{$A$ (4-bit)} & \textbf{$B$ (4-bit)} & \textbf{Result (4-bit)} & \textbf{Overflow?} \\
+        \hline
+        $5 + (-3)$ & & & & \\
+        \hline
+        $5 + 6$ & & & & \\
+        \hline
+        $(-5) + (-4)$ & & & & \\
+        \hline
+    \end{tabular}
+    \caption{Pre-lab: two's complement arithmetic.}
+    \label{tab:prelab}
+\end{table}
+
+\section*{Part I: Full Adder from Gates (about 25 min)}
+
+A full adder adds three bits $A$, $B$ and the carry-in $C_{in}$ and produces a sum $S$ and a carry-out $C_{out}$. As shown in Lecture 4, it can be built from two half adders and an OR gate (Figure \ref{fig:fa_gates}).
+
+\begin{figure}[H]
+    \centering
+    \begin{circuitikz}[circuitikz/logic ports=ieee, scale=0.9, transform shape]
+        \draw (0,2) node[xor port] (x1) {};
+        \draw (0,0) node[and port] (a1) {};
+        \draw (4.5,2) node[xor port] (x2) {};
+        \draw (4.5,0) node[and port] (a2) {};
+        \draw (8.2,0.9) node[or port] (o) {};
+        % first half adder: B -> upper AND input, A -> lower AND input
+        \draw (x1.in 1) -- ++(-3,0) node[left] {$A$};
+        \draw (x1.in 2) -- ++(-1.8,0) node[left] {$B$};
+        \draw (x1.in 1) ++(-2.5,0) node[circ] {} |- (a1.in 2);
+        \draw (x1.in 2) ++(-1.2,0) node[circ] {} |- (a1.in 1);
+        % half-adder sum A xor B
+        \draw (x1.out) -- ++(0.6,0) coordinate (hs);
+        \draw (hs) node[circ] {} |- (x2.in 1);
+        \draw (hs) |- (a2.in 2);
+        % carry-in
+        \draw (x2.in 2) -- ++(-0.6,0) coordinate (cj);
+        \draw (cj) -- ++(0,-3.2) node[below] {$C_{in}$};
+        \draw (cj |- a2.in 1) node[circ] {} -- (a2.in 1);
+        \draw (cj) node[circ] {};
+        % outputs
+        \draw (x2.out) -- ++(4.2,0) node[right] {$S$};
+        % carry paths: every wire enters an OR input horizontally
+        \coordinate (r2) at ($(o.in 2)+(-0.5,0)$);
+        \draw (a1.out) -- ++(0.3,0) -- ++(0,-1.0) -| (r2) -- (o.in 2);
+        \draw (a2.out) -- ++(0.3,0) |- (o.in 1);
+        \draw (o.out) -- ++(0.8,0) node[right] {$C_{out}$};
+    \end{circuitikz}
+    \caption{Full adder built from two half adders (XOR + AND) and an OR gate. Wires that cross without a dot are not connected.}
+    \label{fig:fa_gates}
+\end{figure}
+
+\begin{enumerate}
+    \item Using 74LS86 (2 XOR gates), 74LS08 (2 AND gates) and 74LS32 (1 OR gate), build the full adder on the breadboard. Redraw a clean schematic in your report with the pin numbers.
+    \item Connect $A$, $B$, $C_{in}$ to three switches, and $S$ and $C_{out}$ to LED indicator stages. (Tip: draw and test the circuit first in Logisim, so you can find wiring mistakes before touching the breadboard.)
+    \item Complete Table \ref{tab:fa_table}. Does the output satisfy $A + B + C_{in} = 2\,C_{out} + S$ for each row?
+\end{enumerate}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|c|c|}
+        \hline
+        $A$ & $B$ & $C_{in}$ & $S$ (measured) & $C_{out}$ (measured) & $S$ (VHDL sim.) & $C_{out}$ (VHDL sim.) \\
+        \hline
+        0 & 0 & 0 & & & & \\
+        0 & 0 & 1 & & & & \\
+        0 & 1 & 0 & & & & \\
+        0 & 1 & 1 & & & & \\
+        1 & 0 & 0 & & & & \\
+        1 & 0 & 1 & & & & \\
+        1 & 1 & 0 & & & & \\
+        1 & 1 & 1 & & & & \\
+        \hline
+    \end{tabular}
+    \caption{Full-adder truth table (the last two columns are completed in Part II).}
+    \label{tab:fa_table}
+\end{table}
+
+\section*{Part II: Your First VHDL Design (about 30 min)}
+
+\subsection*{Anatomy of a VHDL file}
+A VHDL file describes a circuit in two parts (see Figure \ref{fig:fa_vhdl}):
+\begin{itemize}
+    \item The \textbf{entity} lists the interface of the circuit: its input and output ports (like the pins of an IC).
+    \item The \textbf{architecture} describes what happens inside. The symbol \texttt{<=} is a \emph{signal assignment}. Statements in an architecture are \textbf{concurrent}: they all describe hardware that operates at the same time, so the order of the statements does not matter.
+\end{itemize}
+The logic operators are \texttt{NOT}, \texttt{AND}, \texttt{OR}, \texttt{XOR} and \texttt{NAND}, \texttt{NOR}, \texttt{XNOR}. A \texttt{SIGNAL} declared in the architecture is like an internal wire.
+
+\begin{figure}[H]
+    \centering
+    \begin{minted}[frame=single, fontsize=\small, linenos]{vhdl}
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+
+ENTITY full_adder IS
+    PORT ( A, B, Cin : IN  STD_LOGIC;
+           S, Cout   : OUT STD_LOGIC );
+END full_adder;
+
+ARCHITECTURE dataflow OF full_adder IS
+    SIGNAL x : STD_LOGIC;           -- internal wire: A XOR B
+BEGIN
+    x    <= A XOR B;
+    S    <= x XOR Cin;
+    Cout <= (A AND B) OR (x AND Cin);
+END dataflow;
+    \end{minted}
+    \caption{VHDL description of a full adder.}
+    \label{fig:fa_vhdl}
+\end{figure}
+
+\begin{enumerate}
+    \item Create a new Quartus project \texttt{lab3} for the DE0-CV board and a new VHDL file named \texttt{full\_adder.vhd}. The file name must be the same as the entity name. Type the code of Figure \ref{fig:fa_vhdl}.
+    \item Compile the file. How many logic elements (or ALMs) are used? \underline{\hspace{2cm}}
+    \item Simulate the design. Create a waveform with $A$, $B$, $C_{in}$ counting through all 8 combinations, and compare the result with the third and fourth column of Table \ref{tab:fa_table}. Fill in the last two columns of this table.
+    \item Open the \textbf{RTL Viewer} (\textbf{Tools $\rightarrow$ Netlist Viewers $\rightarrow$ RTL Viewer}). Does it resemble Figure \ref{fig:fa_gates}?
+    \item Fill the pin assignments to use SW0, SW1, SW2 as $A$, $B$, $C_{in}$ and LEDR0, LEDR1 as $S$, $C_{out}$, then download to the board and test it. Check that the board behaves like your breadboard circuit.
+\end{enumerate}
+
+\section*{Part III: 4-bit Ripple-Carry Adder (about 40 min)}
+
+A 4-bit adder is made by connecting four full adders so that each carry-out feeds the carry-in of the next stage (Figure \ref{fig:ripple}). In VHDL, an existing entity is used as a \textbf{component}: it is declared in the architecture and instantiated with a \texttt{PORT MAP}, which connects each port of the component to a signal.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[x=1cm,y=1cm, font=\small]
+        \foreach \i in {0,1,2,3} {
+            \node[draw, minimum width=1.6cm, minimum height=1.2cm] (fa\i) at (-3.5*\i,0) {FA$_\i$};
+            \draw[->] (-3.5*\i-0.4,2) node[above] {$A_\i$} -- (-3.5*\i-0.4,0.6);
+            \draw[->] (-3.5*\i+0.4,2) node[above] {$B_\i$} -- (-3.5*\i+0.4,0.6);
+            \draw[->] (-3.5*\i,-0.6) -- (-3.5*\i,-1.5) node[below] {$S_\i$};
+        }
+        \draw[<-] (fa0.east) -- ++(1,0) node[right] {$C_0$};
+        \foreach \i/\j in {0/1,1/2,2/3} {
+            \draw[->] (fa\i.west) -- node[above] {$C_{\the\numexpr\i+1\relax}$} (fa\j.east);
+        }
+        \draw[->] (fa3.west) -- ++(-1,0) node[left] {$C_4$};
+    \end{tikzpicture}
+    \caption{4-bit ripple-carry adder.}
+    \label{fig:ripple}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{minted}[frame=single, fontsize=\small, linenos]{vhdl}
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+
+ENTITY ripple_adder_4bit IS
+    PORT ( A, B : IN  STD_LOGIC_VECTOR(3 DOWNTO 0);
+           Cin  : IN  STD_LOGIC;
+           S    : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
+           Cout : OUT STD_LOGIC );
+END ripple_adder_4bit;
+
+ARCHITECTURE structural OF ripple_adder_4bit IS
+    COMPONENT full_adder
+        PORT ( A, B, Cin : IN  STD_LOGIC;
+               S, Cout   : OUT STD_LOGIC );
+    END COMPONENT;
+    SIGNAL C : STD_LOGIC_VECTOR(3 DOWNTO 1);   -- internal carries C1..C3
+BEGIN
+    FA0: full_adder PORT MAP ( A => A(0), B => B(0), Cin => Cin,  S => S(0), Cout => C(1) );
+    FA1: full_adder PORT MAP ( A => A(1), B => B(1), Cin => C(1), S => S(1), Cout => C(2) );
+    -- TODO: instantiate FA2 and FA3 in the same way.
+    -- FA3 must produce the carry-out of the whole adder (Cout).
+END structural;
+    \end{minted}
+    \caption{Skeleton of the structural description of the 4-bit ripple adder.}
+    \label{fig:ripple_vhdl}
+\end{figure}
+
+\begin{enumerate}
+    \item Add \texttt{ripple\_adder\_4bit.vhd} to the project, complete the two missing instances, set it as the top-level entity and compile it. A \texttt{STD\_LOGIC\_VECTOR(3 DOWNTO 0)} is a bundle of four wires, indexed from 3 (MSB) down to 0 (LSB). Number of logic elements used: \underline{\hspace{2cm}}
+    \item Simulate the adder. Apply at least the test cases in Table \ref{tab:ripple_test} and check that the results are correct for \emph{unsigned} numbers.
+    \item Assign $A$ to SW3--SW0, $B$ to SW7--SW4, $C_{in}$ to SW8, $S$ to LEDR3--LEDR0 and $C_{out}$ to LEDR4. Download to the board and verify the test cases.
+\end{enumerate}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|c|c|}
+        \hline
+        $A$ (hex) & $B$ (hex) & $C_{in}$ & \textbf{Expected} $A+B+C_{in}$ (decimal) & $C_{out}$ & $S$ (hex) & Match? \\
+        \hline
+        3 & 4 & 0 & & & & \\
+        7 & 8 & 0 & & & & \\
+        F & 1 & 0 & & & & \\
+        F & F & 1 & & & & \\
+        \hline
+    \end{tabular}
+    \caption{Test cases for the 4-bit ripple-carry adder (unsigned).}
+    \label{tab:ripple_test}
+\end{table}
+
+\section*{Extension: Adder/Subtractor and Overflow Detection (take-home, or if time permits)}
+
+\subsection*{Propagation Delay of the Ripple Adder}
+\begin{enumerate}
+    \item Run the \textbf{Timing Analyzer} (\textbf{Tools $\rightarrow$ Timing Analyzer}, use \textbf{Report Timing}) and find the longest propagation delay from an input to an output of your 4-bit adder: $t_{pd,4\text{-bit}} = $ \underline{\hspace{2cm}} ns.
+    \item Extend the design to \textbf{8 bits} by instantiating two copies of \texttt{ripple\_adder\_4bit} (Lecture 4, Exercise 4-4) and find the longest delay again: $t_{pd,8\text{-bit}} = $ \underline{\hspace{2cm}} ns. How does the delay scale with the number of bits? Why does a Carry Lookahead Adder avoid this?
+\end{enumerate}
+
+\subsection*{Adder/Subtractor}
+Using two's complement numbers, $A - B = A + \overline{B} + 1$. An adder can be turned into an adder/subtractor by passing $B$ through XOR gates controlled by a mode input $M$ ($M=0$: add, $M=1$: subtract) and also connecting $M$ to the carry-in (Figure \ref{fig:addsub}). Overflow of signed numbers occurs when the carry into the MSB differs from the carry out of the MSB: $V = C_3 \oplus C_4$.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[font=\small]
+        \node[draw, minimum width=3cm, minimum height=2.4cm, align=center] (add) at (0,0) {4-bit\\ripple adder};
+        \node[draw, minimum width=1.2cm, minimum height=0.8cm] (xor) at (-3.5,-0.7) {XOR};
+        \node[draw, circle, inner sep=1pt] (v) at (0,3.2) {$\oplus$};
+        \draw[->] (-6,0.7) node[left] {$A_{3..0}$} -- (-1.5,0.7);
+        \draw[->] (-6,-0.7) node[left] {$B_{3..0}$} -- (xor.west);
+        \draw[->] (xor.east) -- (-1.5,-0.7);
+        \draw[->] (-3.5,-2.6) node[below] {$M$} -- (xor.south);
+        \draw[->] (-3.5,-1.8) node[circ] {} -| (0,-1.2);
+        \draw[->] (1.5,0) -- ++(1.2,0) node[right] {$S_{3..0}$};
+        \draw[->] (0.7,1.2) -- (0.7,3.2) node[pos=0.5,right] {$C_4$} -- (v.east);
+        \draw[->] (-0.7,1.2) -- (-0.7,3.2) node[pos=0.5,left] {$C_3$} -- (v.west);
+        \draw[->] (v.north) -- ++(0,0.7) node[above] {$V$};
+        \node at (0.5,-1.0) {\scriptsize $C_{in}$};
+    \end{tikzpicture}
+    \caption{Adder/subtractor. $M$ is also connected to $C_{in}$ of the adder. $V = C_3\oplus C_4$.}
+    \label{fig:addsub}
+\end{figure}
+
+\begin{enumerate}
+    \item Modify \texttt{ripple\_adder\_4bit} (or write a new entity \texttt{addsub\_4bit}) so that the internal carry $C_3$ is available. Hint: add an output port \texttt{C3 : OUT STD\_LOGIC} and write \texttt{C3 <= C(3);}, then write the top-level entity with \texttt{Bx <= B XOR (M \& M \& M \& M);} where \texttt{\&} is the concatenation operator.
+    \item Add the overflow output $V$ and the mode input $M$ to your top-level. Assign $A$ to SW3--SW0, $B$ to SW7--SW4, $M$ to SW9, $S$ to LEDR3--LEDR0 and $V$ to LEDR9.
+    \item Simulate and test on the board the cases in Table \ref{tab:addsub}. Interpret $A$, $B$ and $S$ as \textbf{signed} 4-bit numbers and give the signed decimal value of the result.
+    \item The subtraction $A-B$ with $A = 0000_2$ and $B = 1000_2$ ($-8$) is a special case. What does the circuit output, and why is it wrong?
+\end{enumerate}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|c|c|c|}
+        \hline
+        $M$ & $A$ & $B$ & $A$ (dec) & $B$ (dec) & $S$ (bin) & $S$ (dec) & $V$ \\
+        \hline
+        0 & 0101 & 0011 & & & & & \\
+        0 & 0101 & 0110 & & & & & \\
+        0 & 1011 & 1100 & & & & & \\
+        1 & 0101 & 0011 & & & & & \\
+        1 & 0011 & 0101 & & & & & \\
+        1 & 0111 & 1110 & & & & & \\
+        \hline
+    \end{tabular}
+    \caption{Test cases for the signed adder/subtractor.}
+    \label{tab:addsub}
+\end{table}
+
+\section*{Check-off}
+Show your instructor or teaching assistant:
+\begin{enumerate}
+    \item The breadboard full adder (Table \ref{tab:fa_table}) and the same circuit in VHDL on the board.
+    \item The 4-bit ripple adder in simulation and on the board (Table \ref{tab:ripple_test}).
+\end{enumerate}
+
+\vspace{1cm}
+\noindent \textbf{Updated By:} R. Sutthaweekul \\
+\textbf{Version:} 1.0 \\
+\textbf{Release Date:} 2026-11-11
+
+\end{document}

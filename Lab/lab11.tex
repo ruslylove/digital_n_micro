@@ -1,6 +1,7 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage{xcolor}
+\usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage{minted}
@@ -19,6 +20,7 @@
 \fancyfoot[C]{\small 010153101 Digital Circuit and Microprocessor Fundamental \\ Semester 2/2025}
 \fancyfoot[R]{\thepage}
 
+% Redefine plain style to match fancy style (for the title page)
 \fancypagestyle{plain}{%
   \fancyhf{}%
   \fancyfoot[C]{\small 010153101 Digital Circuit and Microprocessor Fundamental \\ Semester 2/2025}%
@@ -26,7 +28,7 @@
   \renewcommand{\headrulewidth}{0pt}%
 }
 
-\title{Laboratory Exercise 8 - Week 2 \\ Dedicated Microprocessor Part III}
+\title{Laboratory Exercise 11 \\ General-Purpose Microprocessor (EC-1 and EC-2)}
 \author{}
 \date{}
 
@@ -34,32 +36,340 @@
 
 \maketitle
 
-The purpose of this exercise is to build and use Datapath and finite state machine. The designed circuits are to be implemented on an Altera DE0-CV, DE1-SoC, or DE2-115 Board.
+\section*{Introduction}
+In Lab 10 you built a \emph{dedicated} microprocessor: its datapath and control unit were designed for one algorithm only. A \emph{general-purpose} microprocessor runs \emph{any} program, because the algorithm is stored in memory as a sequence of instructions, and the control unit simply fetches, decodes and executes them (Lecture 10). In this laboratory you will work with the two processors of the lecture. The \textbf{EC-1} is an 8-bit processor with a read-only program memory and only five instructions. The \textbf{EC-2} adds a read/write memory shared by code and data (the Von Neumann architecture), an adder/subtractor and more instructions. You will run existing programs, write your own programs in machine code, simulate the processors, and run them on the DE0-CV board.
 
-\setcounter{figure}{4} % Start figure numbering from 5
+\section*{Objectives}
+\begin{enumerate}
+    \item To understand the fetch--decode--execute instruction cycle by observing it in a simulation.
+    \item To encode assembly programs into machine code and to store them in memory using the Intel HEX format.
+    \item To run and debug programs on the EC-1 in simulation and on the DE0-CV board.
+    \item To write a program for the EC-2, a stored-program computer in which code and data share one memory.
+    \item To understand why a program can modify other programs (or itself) in a Von Neumann machine.
+\end{enumerate}
 
-\section*{Part III}
+\section*{Equipment Required}
+\begin{itemize}
+    \item Intel DE0-CV board and a PC with Quartus Prime and the simulator selected by your instructor
+    \item Starter files supplied by your instructor (course repository, folder \texttt{vhdl}): EC-1 files \texttt{ec1.vhd}, \texttt{ec1\_components.vhd}, \texttt{ec1\_datapath.vhd}, \texttt{ec1\_control\_unit.vhd}, \texttt{ec1\_tb.vhd}, \texttt{d\_ff.vhd}, \texttt{rom\_data\_1.hex}; EC-2 files \texttt{ec2.vhd}, \texttt{EC2\_Components.vhd}, \texttt{EC2\_Datapath.vhd}, \texttt{EC2\_Control\_Unit.vhd}, \texttt{ec2\_tb.vhd}
+    \item \texttt{hex7seg.vhd} from Lab 4
+\end{itemize}
 
-The dedicated microprocessor consisting of a Control unit and a Datapath shown in Figure \ref{fig:microprocessor}.
+\section*{Pre-lab (complete before the session)}
+The session is two hours long, so the encoding work is done in advance. Complete the following \emph{before} the session, and also the first column of Table \ref{tab:gcd} (Part III).
+\subsection*{Instruction sets}
+Both processors use an 8-bit instruction: the upper 3 bits are the \textbf{opcode} and the lower bits are an operand (an address) or are not used (x $=$ don't care, write 0).
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|l|l|l|}
+        \hline
+        \textbf{EC-1 instruction} & \textbf{Encoding} & \textbf{EC-2 instruction} & \textbf{Encoding} \\
+        \hline
+        IN A & 011 xxxxx & LOAD A, addr & 000 aaaaa \\
+        OUT A & 100 xxxxx & STORE A, addr & 001 aaaaa \\
+        DEC A & 101 xxxxx & ADD A, addr & 010 aaaaa \\
+        JNZ addr & 110 xaaaa & SUB A, addr & 011 aaaaa \\
+        HALT & 111 xxxxx & IN A & 100 xxxxx \\
+        & & JZ addr & 101 aaaaa \\
+        & & JPOS addr & 110 aaaaa \\
+        & & HALT & 111 xxxxx \\
+        \hline
+    \end{tabular}
+    \caption{Instruction encodings. EC-1: 4-bit addresses, 16-byte ROM. EC-2: 5-bit addresses, 32-byte RAM. JZ jumps if $A = 0$; JPOS jumps if $A \ge 0$.}
+    \label{tab:isa}
+\end{table}
+
+\subsection*{Machine code and the Intel HEX file}
+A program is loaded into the memory from a text file in Intel HEX format. Each line has the form \texttt{:LLAAAATT[DD...]CC}: \texttt{LL} = number of data bytes, \texttt{AAAA} = start address, \texttt{TT} = record type (\texttt{00} data, \texttt{01} end of file), \texttt{DD} = data bytes and \texttt{CC} = checksum. The checksum is the two's complement of the (8-bit) sum of all the other bytes of the line, so that the sum of \emph{all} bytes of the line, including the checksum, is $00_{16}$.
+
+\begin{enumerate}
+    \item Encode the following EC-1 program (countdown from the input value to 1) in hexadecimal:
+    \begin{center}
+    \begin{tabular}{|c|l|c|}
+        \hline
+        \textbf{Address} & \textbf{Assembly} & \textbf{Hex} \\
+        \hline
+        00 & IN A & \\ \hline
+        01 & OUT A & \\ \hline
+        02 & DEC A & \\ \hline
+        03 & JNZ 01 & \\ \hline
+        04 & HALT & \\ \hline
+    \end{tabular}
+    \end{center}
+    \item Compute the checksum of the 5-byte data line \texttt{:05000000} \textit{your five bytes} \texttt{CC}. Checksum $= $ \underline{\hspace{2cm}}. Show your calculation.
+    \item The file \texttt{rom\_data\_1.hex} holds the same program in a 16-byte line, \texttt{:100000006080A0C1E0}\ldots. Verify that its checksum \texttt{CF} is correct. (Hint: the zeros do not change the sum.)
+\end{enumerate}
+
+\section*{Part I: The EC-1 in Simulation (about 30 min)}
+
+\begin{enumerate}
+    \item Create a new Quartus project \texttt{lab11} and add all EC-1 files. The EC-1 program memory is a ROM called \texttt{rom32x8}, which is a megafunction (IP core). Create it with the IP Catalog: \textbf{ROM: 1-PORT}, data width 8 bits, 32 words, single clock, \textbf{no} registered output, and initial contents \texttt{rom\_data\_1.hex}. The ports must be named \texttt{address}, \texttt{clock} and \texttt{q}. Set \texttt{ec1} as the top-level entity and compile.
+    \item Simulate the testbench \texttt{ec1\_tb}, which resets the processor and applies the input value $10$ ($0A_{16}$). Show these signals in the waveform: \texttt{clk}, \texttt{reset}, \texttt{dbg\_state}, \texttt{dbg\_PC}, \texttt{dbg\_IR}, \texttt{input\_bus}, \texttt{output\_bus} and \texttt{halt}. Run the simulation until \texttt{halt} becomes 1.
+    \item Observe the instruction cycle of each instruction in your waveform. List the control unit states that are visited and the number of clock cycles used by each instruction (Table \ref{tab:cycles}). In the VHDL control unit, state codes are 000 = Fetch, 001 = Decode, 011 = Input, 100 = Output, 101 = Dec, 110 = JNZ, 111 = Halt. One state code is not in the lecture's FSM. Which one is it, and in which instruction is it used? \underline{\hspace{4cm}}
+    \item \textbf{Predict, then measure.} Using Table \ref{tab:cycles}, write a formula for the number of clock cycles from the release of reset until \texttt{halt} = 1 as a function of the input $N$: $T(N) = $ \underline{\hspace{6cm}}. Verify your formula in the simulation for $N = 10$ and for another value (change \texttt{input\_bus} in the testbench).
+    \item Explain why \texttt{dbg\_PC} is already ``next address'' while an instruction executes (see the state in which \texttt{PCload} is active).
+\end{enumerate}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|l|c|}
+        \hline
+        \textbf{Instruction} & \textbf{States visited (in order)} & \textbf{Clock cycles} \\
+        \hline
+        IN A & Fetch, Decode, Input & 3 \\ \hline
+        OUT A & & \\ \hline
+        DEC A & & \\ \hline
+        JNZ (jump taken) & & \\ \hline
+        JNZ (jump not taken) & & \\ \hline
+        HALT (to reach the Halt state) & & \\ \hline
+    \end{tabular}
+    \caption{Instruction cycle of the EC-1.}
+    \label{tab:cycles}
+\end{table}
+
+\section*{Part II: The EC-1 on the DE0-CV Board (about 35 min)}
+
+To run the EC-1 on the board you need a top-level entity (Figure \ref{fig:ec1_top}). The 50 MHz clock is too fast to watch, so the processor clock is selected by SW9: either a slow clock of about $1.5\,\mathrm{Hz}$ obtained from a counter ($50\,\mathrm{MHz}/2^{25}$), or a \emph{single-step} clock given by the push button KEY0. KEY1 is the (active-high) reset of the processor after inversion. Note that the output of the EC-1 is a \textbf{tri-state bus}: it is driven only during the Output state and is high-impedance otherwise (the same problem as in Lab 10). Therefore the value is stored in a register at the end of the Output state, and the register is displayed on HEX1--HEX0.
 
 \begin{figure}[H]
     \centering
-    \resizebox{0.8\textwidth}{!}{\input{tex/lab8p3_microprocessor.tex}}
-    \caption{Dedicated microprocessor for counting 1 to 10.}
-    \label{fig:microprocessor}
+    \begin{minted}[frame=single, fontsize=\small, linenos]{vhdl}
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+USE ieee.numeric_std.ALL;
+
+ENTITY ec1_top IS
+    PORT ( CLOCK_50  : IN  STD_LOGIC;
+           KEY       : IN  STD_LOGIC_VECTOR(3 DOWNTO 0);
+           SW        : IN  STD_LOGIC_VECTOR(9 DOWNTO 0);
+           LEDR      : OUT STD_LOGIC_VECTOR(9 DOWNTO 0);
+           HEX0, HEX1 : OUT STD_LOGIC_VECTOR(6 DOWNTO 0) );
+END ec1_top;
+
+ARCHITECTURE structural OF ec1_top IS
+    SIGNAL cnt               : UNSIGNED(24 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL clk_cpu, reset    : STD_LOGIC;
+    SIGNAL halt              : STD_LOGIC;
+    SIGNAL bus_out, out_reg  : STD_LOGIC_VECTOR(7 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL pc                : STD_LOGIC_VECTOR(3 DOWNTO 0);
+    SIGNAL st                : STD_LOGIC_VECTOR(2 DOWNTO 0);
+BEGIN
+    PROCESS (CLOCK_50)
+    BEGIN
+        IF rising_edge(CLOCK_50) THEN cnt <= cnt + 1; END IF;
+    END PROCESS;
+
+    clk_cpu <= cnt(24) WHEN SW(9) = '1' ELSE NOT KEY(0);  -- run / single step
+    reset   <= NOT KEY(1);
+
+    cpu : ENTITY work.ec1
+        PORT MAP ( clk => clk_cpu, reset => reset, input_bus => SW(7 DOWNTO 0),
+                   output_bus => bus_out, halt => halt, dbg_opcode => OPEN,
+                   dbg_A_neq_0 => OPEN, dbg_PC => pc, dbg_IR => OPEN, dbg_state => st );
+
+    -- capture the output bus at the end of the Output state (state = "100")
+    PROCESS (clk_cpu)
+    BEGIN
+        IF rising_edge(clk_cpu) THEN
+            IF st = "100" THEN out_reg <= bus_out; END IF;
+        END IF;
+    END PROCESS;
+
+    -- TODO: hex7seg instances for HEX1 (out_reg(7 DOWNTO 4)) and HEX0 (out_reg(3 DOWNTO 0))
+    -- TODO: LEDR(3 DOWNTO 0) <= pc;  LEDR(6 DOWNTO 4) <= st;  LEDR(9) <= halt;
+END structural;
+    \end{minted}
+    \caption{Top-level entity for the EC-1 (complete the \texttt{TODO} lines).}
+    \label{fig:ec1_top}
 \end{figure}
 
-You are to implement a dedicated microprocessor by assembling the Control unit and Datapath.
+\begin{enumerate}
+    \item Complete the top-level entity, assign pins (SW, KEY, LEDR, HEX, CLOCK\_50) and compile. Record the number of logic elements used: \underline{\hspace{2cm}}.
+    \item Set SW7--SW0 $= 00001010$, set SW9 $= 0$, press KEY1 to reset and single-step the processor with KEY0. Write the LED pattern (PC and state) after each press for the first 12 presses in Table \ref{tab:step}. Then set SW9 $= 1$ and watch the countdown on HEX1--HEX0.
+    \item Test the program with another input (for example $5$ and $1$). What is the display value when the processor has halted? Which LED indicates the halt?
+    \item The clock of the processor is $\approx 1.5\,\mathrm{Hz}$. How long does it take to run the countdown from $10$? Does it agree with your formula $T(N)$ of Part I?
+\end{enumerate}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|}
+        \hline
+        \textbf{Press} & \textbf{PC (LEDR3--0)} & \textbf{State (LEDR6--4)} \\
+        \hline
+        1 & & \\ \hline
+        2 & & \\ \hline
+        3 & & \\ \hline
+        $\ldots$ & & \\ \hline
+        12 & & \\ \hline
+    \end{tabular}
+    \caption{Single-step trace of the EC-1.}
+    \label{tab:step}
+\end{table}
+
+\section*{Part III: The EC-2 and the GCD Program (about 35 min)}
+
+The EC-2 has a single 32-byte RAM that holds \emph{both} the program and the data. The address of the RAM is selected by the program counter during the fetch and by the instruction register during LOAD, STORE, ADD and SUB (control signal \texttt{MemInst}). The following program computes the greatest common divisor of $X$ and $Y$ by repeated subtraction (Euclid's algorithm), where $X$ is stored at address 30 and $Y$ at address 31:
+\begin{center}
+\begin{minipage}{0.45\textwidth}
+\begin{verbatim}
+while (X != Y) {
+    if (X > Y) X = X - Y;
+    else       Y = Y - X;
+}
+\end{verbatim}
+\end{minipage}
+\end{center}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|l|l|c|c|}
+        \hline
+        \textbf{Addr (dec)} & \textbf{Assembly} & \textbf{Comment} & \textbf{Binary} & \textbf{Hex} \\
+        \hline
+        00 & LOAD A, 30 & $A \leftarrow X$ & & \\ \hline
+        01 & SUB A, 31 & $A \leftarrow X - Y$ & & \\ \hline
+        02 & JZ 10 & if $X = Y$, finished & & \\ \hline
+        03 & JPOS 08 & if $X > Y$, update $X$ & & \\ \hline
+        04 & LOAD A, 31 & else $A \leftarrow Y$ & & \\ \hline
+        05 & SUB A, 30 & $A \leftarrow Y - X$ & & \\ \hline
+        06 & STORE A, 31 & $Y \leftarrow A$ & & \\ \hline
+        07 & JPOS 00 & loop & & \\ \hline
+        08 & STORE A, 30 & $X \leftarrow A$ & & \\ \hline
+        09 & JPOS 00 & loop & & \\ \hline
+        10 & HALT & result in Mem[30] & & \\ \hline
+    \end{tabular}
+    \caption{GCD program for the EC-2 (addresses are in decimal).}
+    \label{tab:gcd}
+\end{table}
 
 \begin{enumerate}
-    \item Write a VHDL file that defines component circuit (created in Part I and Part II), depicted in Figure \ref{fig:microprocessor}. Modify the control unit to be able to operate with system internal clock (use a counter to transform 50 MHz to 1 Hz trigger or clock signal with period of 1 second). Compile the circuit. How many logic elements (LEs) are used to implement your circuit?
-    \item Simulate your circuit to verify its correctness.
-    \item Augment your VHDL file to use a pushbutton KEY0 as Reset, and a 7-segment display HEX0 to display the 1 to 10 (‘A’) count as your circuit operates. Make the necessary pin assignments needed to implement the circuit on your DE-series board and compile the circuit.
-    \item Download your circuit into the FPGA chip and test its functionality by operating the implemented switches.
+    \item Complete Table \ref{tab:gcd} with the binary and hexadecimal machine code (Table \ref{tab:isa}). Compare it with the initial contents of the array in the entity \texttt{ram32x8} of \texttt{EC2\_Components.vhd}. Check that the program and the data ($X = 15$ at address 30 and $Y = 25$ at address 31) agree with your table.
+    \item Create a project for the EC-2 (top-level entity \texttt{ec2}). Compile it and simulate \texttt{ec2\_tb}. Show \texttt{dbg\_state}, \texttt{dbg\_PC}, \texttt{dbg\_IR}, \texttt{output\_bus} and \texttt{halt}. Observe the sequence of addresses visited by the program counter. Which addresses are executed for $X = 15$, $Y = 25$? Write the sequence: \underline{\hspace{9cm}}
+    \item The EC-2 has no instruction to output memory data, and the output bus shows the accumulator $A$ (which is zero when the program stops through \texttt{JZ}). Modify the program so that the result is visible: replace the HALT at address 10 with \texttt{LOAD A, 30}, and put the HALT at address 11. (The \texttt{JZ 10} still points to the correct place.) Write the two new hex bytes: \underline{\hspace{3cm}}. Check in the simulation that \texttt{output\_bus} $= 5$ when \texttt{halt} $= 1$.
+    \item Test the program with the data pairs of Table \ref{tab:gcd_res} by changing the initial values of addresses 30 and 31 in \texttt{ram32x8} (in simulation).
+    \item Reuse the top-level of Figure \ref{fig:ec1_top} for the EC-2: the program counter is 5 bits and \texttt{dbg\_state} is 4 bits, and \texttt{A\_out\_bus} (\texttt{output\_bus}) is \emph{not} tri-state, so the capture register is not needed. Display \texttt{output\_bus} on HEX1--HEX0, the halt signal on LEDR9 and the lower bits of the PC on LEDR4--LEDR0. Run the GCD program on the board.
+\end{enumerate}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        $X$ & $Y$ & \textbf{Expected GCD} & \textbf{HEX1--HEX0 at halt} \\
+        \hline
+        15 & 25 & 5 & \\ \hline
+        48 & 18 & & \\ \hline
+        7 & 13 & & \\ \hline
+        12 & 12 & & \\ \hline
+    \end{tabular}
+    \caption{GCD results.}
+    \label{tab:gcd_res}
+\end{table}
+
+\section*{Extension (take-home, or if time permits)}
+\subsection*{EC-1 Odd/Even Detector}
+\noindent The program halts at address 03 if the input is odd and at address 06 if it is even. It uses only DEC and JNZ: it ``ping-pongs'' between two decrements, so it checks one bit without any bit-test instruction.
+
+\begin{center}
+\begin{tabular}{|c|l|c|}
+    \hline
+    \textbf{Address} & \textbf{Assembly} & \textbf{Hex} \\
+    \hline
+    00 & IN A & \\ \hline
+    01 & DEC A & \\ \hline
+    02 & JNZ 04 & \\ \hline
+    03 & HALT \quad ; halts here if odd & \\ \hline
+    04 & DEC A & \\ \hline
+    05 & JNZ 01 & \\ \hline
+    06 & HALT \quad ; halts here if even & \\ \hline
+\end{tabular}
+\end{center}
+
+\begin{enumerate}
+    \item Complete the table, write the HEX line, compute its checksum, and test on the board with the inputs of Table \ref{tab:parity11}. Use the PC value on the LEDs when the processor halts to decide odd/even, and explain why the PC is one more than the address of the HALT instruction.
+    \item What happens with input $0$? Predict first, then test. Explain the result in terms of the 8-bit register.
+\end{enumerate}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|}
+        \hline
+        \textbf{Input} & \textbf{PC at halt} & \textbf{Odd or even?} & \textbf{Correct?} \\
+        \hline
+        7 & & & \\ \hline
+        12 & & & \\ \hline
+        1 & & & \\ \hline
+        0 & & & \\ \hline
+    \end{tabular}
+    \caption{Results of the odd/even detector.}
+    \label{tab:parity11}
+\end{table}
+
+
+\begin{enumerate}
+    \item[] \textit{GCD, again:} why must all the numbers be below $128$ for the GCD program to work? (Hint: look at how JPOS decides.)
+\end{enumerate}
+
+\subsection*{Write Your Own EC-2 Program}
+
+Write an EC-2 program that computes the \textbf{product} $P = X \times Y$ of two numbers by \emph{repeated addition} (Lecture 10, Challenge 3): $P \leftarrow 0$; while $Y \ne 0$: $P \leftarrow P + X$, $Y \leftarrow Y - 1$. Use the following memory map:
+
+\begin{center}
+\begin{tabular}{|c|l|}
+    \hline
+    \textbf{Address} & \textbf{Content} \\
+    \hline
+    0 -- 15 & program \\ \hline
+    28 & $P$ (product), initial value 0 \\ \hline
+    29 & constant 1 \\ \hline
+    30 & $X$ \\ \hline
+    31 & $Y$ \\ \hline
+\end{tabular}
+\end{center}
+
+\begin{enumerate}
+    \item Write the program in assembly language with comments. Hints: the EC-2 can only subtract a \emph{memory} operand, so the constant $1$ is stored at address 29; the instruction \texttt{JPOS} behaves like an unconditional jump when you know that $A \ge 0$.
+    \item Convert it to machine code, enter it in the RAM initialization of \texttt{ram32x8} together with the data, and make the program end with the product in the accumulator (as in Part III).
+    \item Simulate with $X = 6$, $Y = 7$ and then with $Y = 0$. Does the program give $42$ and $0$? How many clock cycles does it need for each case?
+    \item Test the program on the board. What is the largest product that it can compute correctly? Why?
+\end{enumerate}
+
+\subsection*{Code Is Data}
+
+Because the program and the data share one memory, a program can modify its own instructions. The bootloader below loads bytes from the input port to consecutive memory addresses starting at address 10, although the EC-2 has no indirect addressing.
+
+\begin{center}
+\begin{tabular}{|c|l|l|}
+    \hline
+    \textbf{Addr} & \textbf{Assembly} & \textbf{Comment} \\
+    \hline
+    00 & IN A & read a byte from the input \\ \hline
+    01 & STORE A, 10 & store it at the target address (this instruction will be modified) \\ \hline
+    02 & LOAD A, 01 & load the instruction at address 01 \\ \hline
+    03 & ADD A, 06 & add 1 to its address field \\ \hline
+    04 & STORE A, 01 & write it back \\ \hline
+    05 & JPOS 00 & next byte \\ \hline
+    06 & 01 & constant 1 (data) \\ \hline
+\end{tabular}
+\end{center}
+
+\begin{enumerate}
+    \item What is the machine code of \texttt{STORE A, 10} at address 01? What does it become after one pass of the loop? After two passes? Which instruction does the second one correspond to? \underline{\hspace{6cm}}
+    \item Why does \texttt{JPOS 00} always jump back here? (Hint: what is the value of $A$ at this point, and what is the opcode of STORE?)
+    \item \textbf{Optional challenge.} How would you add an instruction \texttt{INC A} ($A \leftarrow A+1$) to the EC-1, using the unused opcode 001? List the changes in the datapath and in the control unit. How many state flip-flops does the control unit need then, and why?
+\end{enumerate}
+
+\section*{Check-off}
+Show your instructor or teaching assistant:
+\begin{enumerate}
+    \item Your hand-encoded programs and the HEX checksum (Pre-lab).
+    \item The EC-1 countdown in simulation (Table \ref{tab:cycles}) and on the board (Table \ref{tab:step}).
+    \item The EC-2 GCD program in simulation and on the board (Table \ref{tab:gcd_res}).
 \end{enumerate}
 
 \vspace{1cm}
 \noindent \textbf{Updated By:} R. Sutthaweekul \\
-\textbf{Release Date:} 2026-01-02
+\textbf{Version:} 1.1 \\
+\textbf{Release Date:} 2026-11-11
 
 \end{document}

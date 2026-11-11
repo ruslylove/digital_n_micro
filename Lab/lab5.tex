@@ -1,0 +1,334 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{minted}
+\usepackage{circuitikz}
+\usepackage{tikz}
+\usetikzlibrary{shapes, arrows, calc, positioning, circuits.logic.US, circuits.logic.IEC}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{hyperref}
+\usemintedstyle{trac}
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\fancyfoot[C]{\small 010153101 Digital Circuit and Microprocessor Fundamental \\ Semester 2/2025}
+\fancyfoot[R]{\thepage}
+
+% Redefine plain style to match fancy style (for the title page)
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyfoot[C]{\small 010153101 Digital Circuit and Microprocessor Fundamental \\ Semester 2/2025}%
+  \fancyfoot[R]{\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+}
+
+\title{Laboratory Exercise 5 \\ Multiplexers, Comparators and a Simple ALU}
+\author{}
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\section*{Introduction}
+This laboratory exercise accompanies the second half of Lecture 5 (Combinational Circuit Building Blocks): multiplexers, Boolean function implementation with a multiplexer, tri-state gates, the Arithmetic Logic Unit (ALU) (and, as an extension, the magnitude comparator). The circuits are written in VHDL. You will build a 4-to-1 multiplexer from 2-to-1 multiplexers like the one that you built on the breadboard in Lab 5.5, check it with a self-checking \textbf{testbench}, and then combine the building blocks of Labs 3 to 5 into a small ALU. The ALU is described with a first VHDL \texttt{PROCESS}, which prepares you for the sequential circuits in Lab 6.
+
+\section*{Objectives}
+\begin{enumerate}
+    \item To build a larger multiplexer from smaller multiplexers by structural VHDL, and to compare it with a behavioral description.
+    \item To verify a design exhaustively with a self-checking VHDL testbench.
+    \item To implement a Boolean function with a multiplexer.
+    \item (Extension) To design a 4-bit magnitude comparator.
+    \item To describe a combinational circuit with a \texttt{PROCESS} and a \texttt{CASE} statement, and to use a tri-state output.
+\end{enumerate}
+
+\section*{Equipment Required}
+\begin{itemize}
+    \item Intel DE0-CV board and a PC with Quartus Prime (and the simulator selected by your instructor)
+    \item Files from previous labs: \texttt{hex7seg.vhd} (Lab 4)
+\end{itemize}
+
+\section*{Pre-lab (complete before the session)}
+The session is two hours long, so complete the following \emph{before} the session.
+\begin{enumerate}
+    \item Draw a 4-to-1 multiplexer built with three 2-to-1 multiplexers. Which select signal drives the first stage and which the second stage?
+    \item For $F(A,B,C) = \sum m(1,3,5,6,7)$ fill in the inputs of a 4-to-1 multiplexer with $A$, $B$ on the select inputs ($S_1 = A$, $S_0 = B$): $I_0 =$ \underline{\hspace{1cm}}, $I_1 = $ \underline{\hspace{1cm}}, $I_2 = $ \underline{\hspace{1cm}}, $I_3 = $ \underline{\hspace{1cm}}.
+\end{enumerate}
+
+\section*{Part I: Multiplexers and a Testbench (about 40 min)}
+
+\subsection*{2-to-1 multiplexer}
+The 2-to-1 multiplexer with $Y = \bar{S}\,I_0 + S\,I_1$ is the circuit of Lab 5.5. In VHDL, the \texttt{WHEN ... ELSE} conditional assignment describes the same behavior in one line.
+
+\begin{figure}[H]
+    \centering
+    \begin{minted}[frame=single, fontsize=\small, linenos]{vhdl}
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+
+ENTITY mux2to1 IS
+    PORT ( I0, I1, S : IN  STD_LOGIC;
+           Y         : OUT STD_LOGIC );
+END mux2to1;
+
+ARCHITECTURE behavior OF mux2to1 IS
+BEGIN
+    Y <= I0 WHEN S = '0' ELSE I1;
+END behavior;
+    \end{minted}
+    \caption{A 2-to-1 multiplexer.}
+    \label{fig:mux2}
+\end{figure}
+
+\subsection*{4-to-1 multiplexer in two ways}
+\begin{enumerate}
+    \item Create a new Quartus project \texttt{lab5} and enter \texttt{mux2to1.vhd} (Figure \ref{fig:mux2}).
+    \item Write \texttt{mux4\_struct}: a 4-to-1 multiplexer with inputs $I(3..0)$, $S(1..0)$ and output $Y$ using \textbf{three instances} of \texttt{mux2to1}. Use $S_0$ in the first stage and $S_1$ in the second stage (see Pre-lab). You need two internal signals for the outputs of the first stage.
+    \item Write \texttt{mux4\_behav}: the same multiplexer described with a selected signal assignment:
+\begin{minted}[frame=single, fontsize=\small]{vhdl}
+WITH S SELECT
+    Y <= I(0) WHEN "00",
+         I(1) WHEN "01",
+         I(2) WHEN "10",
+         I(3) WHEN OTHERS;
+\end{minted}
+    \item Compile both designs separately (set each as the top-level entity) and record the number of logic elements and the RTL Viewer picture. Are they the same?
+\end{enumerate}
+
+\subsection*{A self-checking testbench}
+A testbench is a VHDL entity without ports that instantiates the design under test, applies inputs, and checks the outputs. The testbench in Figure \ref{fig:tb} applies all $2^6 = 64$ combinations of $I$ and $S$ to both multiplexers and reports an error if the outputs differ. It uses a \texttt{PROCESS}, a statement whose body is executed \emph{in sequence}, with \texttt{WAIT FOR} to let time pass.
+
+\begin{figure}[H]
+    \centering
+    \begin{minted}[frame=single, fontsize=\small, linenos]{vhdl}
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+USE ieee.numeric_std.ALL;
+
+ENTITY mux4_tb IS END mux4_tb;
+
+ARCHITECTURE sim OF mux4_tb IS
+    SIGNAL I          : STD_LOGIC_VECTOR(3 DOWNTO 0);
+    SIGNAL S          : STD_LOGIC_VECTOR(1 DOWNTO 0);
+    SIGNAL Y_s, Y_b   : STD_LOGIC;
+BEGIN
+    u1 : ENTITY work.mux4_struct PORT MAP (I => I, S => S, Y => Y_s);
+    u2 : ENTITY work.mux4_behav  PORT MAP (I => I, S => S, Y => Y_b);
+
+    stimulus : PROCESS
+        VARIABLE v : UNSIGNED(5 DOWNTO 0);
+    BEGIN
+        FOR k IN 0 TO 63 LOOP
+            v := TO_UNSIGNED(k, 6);
+            I <= STD_LOGIC_VECTOR(v(5 DOWNTO 2));
+            S <= STD_LOGIC_VECTOR(v(1 DOWNTO 0));
+            WAIT FOR 10 ns;
+            ASSERT Y_s = Y_b REPORT "Mismatch at k = " & INTEGER'IMAGE(k)
+                SEVERITY ERROR;
+        END LOOP;
+        REPORT "Test finished";
+        WAIT;
+    END PROCESS;
+END sim;
+    \end{minted}
+    \caption{Exhaustive self-checking testbench for the two multiplexers.}
+    \label{fig:tb}
+\end{figure}
+
+\begin{enumerate}
+    \setcounter{enumi}{4}
+    \item Run the simulation of \texttt{mux4\_tb} (the simulator and its set-up are explained by your instructor) for at least $640\,\mathrm{ns}$. Are there any error messages? Show the waveform of $I$, $S$, $Y\_s$ and $Y\_b$.
+    \item Connect \texttt{mux4\_behav} to the board: $I$ = SW3--SW0, $S$ = SW9--SW8, $Y$ = LEDR0. Test all select values.
+\end{enumerate}
+
+\section*{Part II: Implementing a Function with a Multiplexer (about 20 min)}
+
+A $2^n$-to-1 multiplexer can implement any function of $n+1$ variables (Shannon's expansion, Lecture 5). Use your \texttt{mux4\_behav} to implement $F(A,B,C) = \sum m(1,3,5,6,7)$.
+
+\begin{enumerate}
+    \item Write an entity \texttt{func\_mux} with inputs $A$, $B$, $C$ and output $F$. Connect $A$ to $S_1$, $B$ to $S_0$ and the inputs $I_3..I_0$ as you found in the Pre-lab (the constants are \texttt{'0'} and \texttt{'1'}, and signal $C$ for the others).
+    \item Write a second entity \texttt{func\_sop} that implements $F$ directly as a minimized SOP expression. Use a K-map to find the expression: $F = $ \underline{\hspace{5cm}}
+    \item Simulate both and show that they are equivalent. Compile each design separately: which uses fewer logic elements? \underline{\hspace{3cm}}
+    \item Implement \texttt{func\_mux} on the board with $A$, $B$, $C$ = SW2--SW0 and $F$ = LEDR0 and complete Table \ref{tab:func}.
+\end{enumerate}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        $A$ & $B$ & $C$ & $F$ expected & $F$ measured \\
+        \hline
+        0&0&0&0& \\ \hline
+        0&0&1&1& \\ \hline
+        0&1&0&0& \\ \hline
+        0&1&1&1& \\ \hline
+        1&0&0&0& \\ \hline
+        1&0&1&1& \\ \hline
+        1&1&0&1& \\ \hline
+        1&1&1&1& \\ \hline
+    \end{tabular}
+    \caption{Function implemented with a multiplexer.}
+    \label{tab:func}
+\end{table}
+
+\section*{Part III: A Simple ALU with Tri-State Output (about 35 min)}
+
+An ALU performs several arithmetic or logic operations on two operands; a multiplexer selects which result appears at the output. Design a 4-bit ALU with the operations of Table \ref{tab:alu} (Figure \ref{fig:alu}). Use a \texttt{PROCESS} with a \texttt{CASE} statement for the multiplexing. In a process, signals read inside the process must appear in its \textbf{sensitivity list} (the list in parentheses after \texttt{PROCESS}).
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|}
+        \hline
+        \textbf{Op (2 bits)} & \textbf{Function} \\
+        \hline
+        00 & $Y = A + B$ \\ \hline
+        01 & $Y = A - B$ \\ \hline
+        10 & $Y = A$ AND $B$ \\ \hline
+        11 & $Y = A$ OR $B$ \\ \hline
+    \end{tabular}
+    \caption{ALU operations.}
+    \label{tab:alu}
+\end{table}
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[font=\small]
+        \node[draw, minimum width=3.6cm, minimum height=2.6cm, align=center] (alu) at (0,0) {4-bit ALU\\$Y_{int}$};
+        \node[draw, minimum width=1.5cm, minimum height=1.0cm, align=center] (tri) at (4.4,0) {tri-state\\buffer};
+        \draw[->] (-3.5,0.7) node[left] {$A$ (4)} -- (alu.west |- 0,0.7);
+        \draw[->] (-3.5,-0.7) node[left] {$B$ (4)} -- (alu.west |- 0,-0.7);
+        \draw[->] (0,-2.4) node[below] {Op (2)} -- (alu.south);
+        \draw[->] (alu.east) -- node[above] {$Y_{int}$} (tri.west);
+        \draw[->] (tri.east) -- ++(1.2,0) node[right] {$Y$ (LEDR)};
+        \draw[->] (4.4,-2.0) node[below] {$OE$} -- (tri.south);
+        \draw[->] (0.9,1.3) -- ++(0,0.8) node[above] {Zero flag};
+        \draw[->] (2.2,0) |- (2.2,-1.6) -- ++(0.8,0) node[right] {$Y_{int}$ to HEX0};
+        \fill (2.2,0) circle (1.5pt);
+    \end{tikzpicture}
+    \caption{Block diagram of the ALU with a tri-state output stage.}
+    \label{fig:alu}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{minted}[frame=single, fontsize=\small, linenos]{vhdl}
+LIBRARY ieee;
+USE ieee.std_logic_1164.ALL;
+USE ieee.numeric_std.ALL;
+
+ENTITY alu4 IS
+    PORT ( A, B  : IN  STD_LOGIC_VECTOR(3 DOWNTO 0);
+           Op    : IN  STD_LOGIC_VECTOR(1 DOWNTO 0);
+           OE    : IN  STD_LOGIC;
+           Yint  : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);   -- always driven
+           Y     : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);   -- tri-state output
+           Zero  : OUT STD_LOGIC );
+END alu4;
+
+ARCHITECTURE behavior OF alu4 IS
+    SIGNAL R : STD_LOGIC_VECTOR(3 DOWNTO 0);
+BEGIN
+    PROCESS (A, B, Op)
+    BEGIN
+        CASE Op IS
+            WHEN "00"   => R <= STD_LOGIC_VECTOR(UNSIGNED(A) + UNSIGNED(B));
+            WHEN "01"   => R <= STD_LOGIC_VECTOR(UNSIGNED(A) - UNSIGNED(B));
+            WHEN "10"   => R <= A AND B;
+            WHEN OTHERS => R <= A OR B;
+        END CASE;
+    END PROCESS;
+
+    Yint <= R;
+    Zero <= '1' WHEN R = "0000" ELSE '0';
+    Y    <= R WHEN OE = '1' ELSE "ZZZZ";     -- tri-state buffer
+END behavior;
+    \end{minted}
+    \caption{A 4-bit ALU with zero flag and tri-state output.}
+    \label{fig:alu_vhdl}
+\end{figure}
+
+\begin{enumerate}
+    \item Add \texttt{alu4.vhd} to the project and compile it. Why can the output ports \texttt{Yint} and \texttt{Y} not be read inside the architecture, and why do we use the internal signal \texttt{R}?
+    \item Simulate the ALU. Choose test vectors that include the following cases and record the results in Table \ref{tab:alu_test}: $9+8$ (the result does not fit in 4 bits), $3-5$, and $A-A$ (the Zero flag).
+    \item Write the top-level entity: $A$ = SW3--SW0, $B$ = SW7--SW4, $Op$ = SW9--SW8, $Y$ = LEDR3--LEDR0, \texttt{Zero} = LEDR9, and \texttt{Yint} displayed on \texttt{HEX0} with \texttt{hex7seg}. Use push-button KEY0 as the output enable: \texttt{OE <= NOT KEY(0);} (KEY is active-low, so the outputs are enabled \emph{while the button is pressed}).
+    \item Download to the board and test Table \ref{tab:alu_test}. What do the LEDs display when KEY0 is not pressed? Why is this output state called ``high impedance''?
+    \item Tri-state outputs allow several circuits to share one wire (a bus), provided that only one is enabled at any time. \emph{Inside} an FPGA chip no tri-state buses exist; the synthesis tool converts the tri-state buffers into multiplexers, except at the chip pins. Why can two ordinary gate outputs not be connected together without tri-state control? (Lecture 5, Exercise 5-3.)
+\end{enumerate}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|c|c|}
+        \hline
+        Op & $A$ & $B$ & $Y_{int}$ expected & HEX0 & Zero & LEDR3--0 (KEY0 pressed) \\
+        \hline
+        00 & 9 & 8 & & & & \\ \hline
+        01 & 3 & 5 & & & & \\ \hline
+        01 & 7 & 7 & & & & \\ \hline
+        10 & 1100 & 1010 & & & & \\ \hline
+        11 & 1100 & 1010 & & & & \\ \hline
+    \end{tabular}
+    \caption{ALU test results.}
+    \label{tab:alu_test}
+\end{table}
+
+\section*{Extension (take-home, or if time permits)}
+\begin{enumerate}
+    \item (Part I) To see the effect of a failing test, change one line of \texttt{mux4\_struct} deliberately (for example, swap $S_0$ and $S_1$) and rerun the testbench. What message appears? Restore the correct code.
+\end{enumerate}
+
+\subsection*{4-bit Magnitude Comparator}
+
+A magnitude comparator compares two numbers $A$ and $B$. For 4 bits, define the \emph{equality} signals $x_i = A_i \odot B_i$ (XNOR). Then
+\begin{align*}
+(A = B) &= x_3\,x_2\,x_1\,x_0 \\
+(A > B) &= A_3\bar{B}_3 + x_3 A_2\bar{B}_2 + x_3x_2A_1\bar{B}_1 + x_3x_2x_1A_0\bar{B}_0 \\
+(A < B) &= \bar{A}_3 B_3 + x_3 \bar{A}_2 B_2 + x_3x_2\bar{A}_1 B_1 + x_3x_2x_1\bar{A}_0 B_0
+\end{align*}
+
+\begin{enumerate}
+    \item Write an entity \texttt{comp4\_eq} that uses these equations with one \texttt{SIGNAL x : STD\_LOGIC\_VECTOR(3 DOWNTO 0)} for the equality signals, e.g. \texttt{x <= A XNOR B;}. The ports are $A$, $B$ (4 bits) and \texttt{AGB}, \texttt{AEB}, \texttt{ALB}.
+    \item Write a second entity \texttt{comp4\_beh} with the same ports, but using the relational operators on unsigned numbers:
+\begin{minted}[frame=single, fontsize=\small]{vhdl}
+USE ieee.numeric_std.ALL;
+...
+AGB <= '1' WHEN UNSIGNED(A) >  UNSIGNED(B) ELSE '0';
+\end{minted}
+    \item Write a testbench (modify Figure \ref{fig:tb}: loop over $0..255$, split $v$ into $A$ and $B$) that compares both comparators for all 256 input combinations.
+    \item On the board: $A$ = SW3--SW0, $B$ = SW7--SW4, \texttt{AGB}, \texttt{AEB}, \texttt{ALB} on LEDR2, LEDR1, LEDR0. Also display $A$ on \texttt{HEX1} and $B$ on \texttt{HEX0} (with \texttt{hex7seg}) and check the three cases of Table \ref{tab:comp}.
+\end{enumerate}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        $A$ & $B$ & AGB & AEB & ALB \\
+        \hline
+        1011 & 1001 & & & \\ \hline
+        0110 & 0110 & & & \\ \hline
+        0011 & 1000 & & & \\ \hline
+    \end{tabular}
+    \caption{Comparator results.}
+    \label{tab:comp}
+\end{table}
+
+
+\section*{Check-off}
+Show your instructor or teaching assistant:
+\begin{enumerate}
+    \item The testbench waveform of the multiplexers without errors.
+    \item The function implemented with a multiplexer on the board.
+    \item The ALU with tri-state output working on the board (Table \ref{tab:alu_test}).
+\end{enumerate}
+
+\vspace{1cm}
+\noindent \textbf{Updated By:} R. Sutthaweekul \\
+\textbf{Version:} 1.0 \\
+\textbf{Release Date:} 2026-11-11
+
+\end{document}
