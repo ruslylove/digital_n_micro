@@ -1,0 +1,7 @@
+# Allow esbuild's install script (needed by Vite/Slidev) so `pnpm install --frozen-lockfile` passes in CI.
+# pnpm 11+
+allowBuilds:
+  esbuild: true
+# pnpm 10 and earlier
+onlyBuiltDependencies:
+  - esbuild
