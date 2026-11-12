@@ -162,7 +162,7 @@ De Morgan's theorem states that $(A\cdot B)' = A' + B'$ (and $(A+B)' = A'\cdot B
 
 \begin{enumerate}
     \item Create a new Quartus project \texttt{lab1} for the DE0-CV board and draw the schematic (Block Editor) of the SOP expression of your pre-lab using NOT, AND3 and OR gates. How many gates of each type did you use? \underline{\hspace{4cm}} (You may first draw and test the same circuit in Logisim; the board test still needs Quartus.)
-    \item Compile the schematic and perform a functional simulation using a vector waveform file (*.vwf) as in Lab 5.5. Apply all 8 input combinations in order $000, 001, \ldots, 111$ and capture the waveform (in Logisim: toggle the inputs with the Poke tool, or use the chronogram of Logisim-evolution, and capture a screenshot). Compare it with your truth table.
+    \item Compile the schematic and perform a functional simulation using a vector waveform file (*.vwf) as in Lab 0. Apply all 8 input combinations in order $000, 001, \ldots, 111$ and capture the waveform (in Logisim: toggle the inputs with the Poke tool, or use the chronogram of Logisim-evolution, and capture a screenshot). Compare it with your truth table.
     \item Assign $x_1, x_2, x_3$ to switches SW2, SW1, SW0 and $f$ to LEDR0. Download the circuit to the board and test it: starting from all switches OFF, flip \emph{one} switch at a time and check that the light toggles every time.
 \end{enumerate}
 
@@ -194,7 +194,7 @@ De Morgan's theorem states that $(A\cdot B)' = A' + B'$ (and $(A+B)' = A'\cdot B
 \begin{enumerate}
     \item Verify the second De Morgan law, $(A+B)' = A'\cdot B'$, on the breadboard (74LS02 NOR, 74LS04, 74LS08). \textbf{Note that the pin order of the 74LS02 is different:} gate inputs are pins 2,3 $\rightarrow$ 1; 5,6 $\rightarrow$ 4; 8,9 $\rightarrow$ 10; 11,12 $\rightarrow$ 13.
     \item Replace your three-way light circuit with $f = x_1 \oplus x_2 \oplus x_3$ (XOR gates). Show by simulation that it has the same waveform as the SOP circuit. Which one has fewer gates?
-    \item The multiplexer is another important example of Lecture 2. You will build and test one on the breadboard in Lab 5.5.
+    \item The multiplexer is another important example of Lecture 2. You will build and test one on the breadboard in Lab 5.
 \end{enumerate}
 
 \section*{Check-off}

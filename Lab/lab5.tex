@@ -37,10 +37,11 @@
 \maketitle
 
 \section*{Introduction}
-This laboratory exercise accompanies the second half of Lecture 5 (Combinational Circuit Building Blocks): multiplexers, Boolean function implementation with a multiplexer, tri-state gates, the Arithmetic Logic Unit (ALU) (and, as an extension, the magnitude comparator). The circuits are written in VHDL. You will build a 4-to-1 multiplexer from 2-to-1 multiplexers like the one that you built on the breadboard in Lab 5.5, check it with a self-checking \textbf{testbench}, and then combine the building blocks of Labs 3 to 5 into a small ALU. The ALU is described with a first VHDL \texttt{PROCESS}, which prepares you for the sequential circuits in Lab 6.
+This laboratory exercise accompanies the second half of Lecture 5 (Combinational Circuit Building Blocks): multiplexers, Boolean function implementation with a multiplexer, tri-state gates, the Arithmetic Logic Unit (ALU) (and, as an extension, the magnitude comparator). The circuits are written in VHDL. You first build a 2-to-1 multiplexer from basic gates on the breadboard, the same circuit that you will then describe in VHDL. You will build a 4-to-1 multiplexer from 2-to-1 multiplexers, check it with a self-checking \textbf{testbench}, and then combine the building blocks of Labs 3 to 5 into a small ALU. The ALU is described with a first VHDL \texttt{PROCESS}, which prepares you for the sequential circuits in Lab 6.
 
 \section*{Objectives}
 \begin{enumerate}
+    \item To build and test a 2-to-1 multiplexer from basic gates (NOT, AND, OR) on the breadboard.
     \item To build a larger multiplexer from smaller multiplexers by structural VHDL, and to compare it with a behavioral description.
     \item To verify a design exhaustively with a self-checking VHDL testbench.
     \item To implement a Boolean function with a multiplexer.
@@ -50,6 +51,8 @@ This laboratory exercise accompanies the second half of Lecture 5 (Combinational
 
 \section*{Equipment Required}
 \begin{itemize}
+    \item Breadboard, jumper wires, $+5\,\mathrm{V}$ supply, DIP switches, LEDs, resistors ($3\times 330\,\Omega$ for the switches and one for the LED), multimeter and oscilloscope (optional)
+    \item TTL ICs: 74LS04 (hex inverter), 74LS08 (quad AND), 74LS32 (quad OR)
     \item Intel DE0-CV board and a PC with Quartus Prime (and the simulator selected by your instructor)
     \item Files from previous labs: \texttt{hex7seg.vhd} (Lab 4)
 \end{itemize}
@@ -57,14 +60,96 @@ This laboratory exercise accompanies the second half of Lecture 5 (Combinational
 \section*{Pre-lab (complete before the session)}
 The session is two hours long, so complete the following \emph{before} the session.
 \begin{enumerate}
+    \item Complete Table \ref{tab:mux_truth} (expected $Y$ of a 2-to-1 multiplexer, $Y = \bar{S}\,I_0 + S\,I_1$), and check the pin numbers of the 74LS04, 74LS08 and 74LS32 in Table \ref{tab:mux_wiring}.
     \item Draw a 4-to-1 multiplexer built with three 2-to-1 multiplexers. Which select signal drives the first stage and which the second stage?
     \item For $F(A,B,C) = \sum m(1,3,5,6,7)$ fill in the inputs of a 4-to-1 multiplexer with $A$, $B$ on the select inputs ($S_1 = A$, $S_0 = B$): $I_0 =$ \underline{\hspace{1cm}}, $I_1 = $ \underline{\hspace{1cm}}, $I_2 = $ \underline{\hspace{1cm}}, $I_3 = $ \underline{\hspace{1cm}}.
 \end{enumerate}
 
-\section*{Part I: Multiplexers and a Testbench (about 40 min)}
+\section*{Part I: A 2-to-1 Multiplexer on the Breadboard (about 20 min)}
+
+A 2-to-1 multiplexer has two data inputs ($I_0$, $I_1$), a select input $S$ and an output $Y$. If $S=0$ then $Y=I_0$, otherwise $Y=I_1$:
+\[ Y = \bar{S}\cdot I_0 + S\cdot I_1 \]
+Build it with the gates of Figure \ref{fig:mux_logic}.
+
+\begin{figure}[H]
+    \centering
+    \begin{circuitikz}[circuitikz/logic ports=ieee]
+        \draw
+        (0,2) node[and port] (and1) {}
+        (0,0) node[and port] (and2) {}
+        (2.5,1) node[or port] (or1) {};
+
+        % NOT gate output aligned with AND1 input 2
+        \draw (and1.in 2) -- ++(-0.5,0) node[not port, anchor=out, scale=0.5] (not1) {};
+
+        % I0 on AND1 input 1, I1 on AND2 input 2
+        \draw (and1.in 1) -- ++(-2.5,0) node[label=left:$I_0$] (I0) {};
+        \draw (and2.in 2) -- ++(-2.5,0) node[label=left:$I_1$] (I1) {};
+
+        % S junction
+        \draw (not1.in) -- ++(-0.5,0) coordinate (s_split) node[circ] {};
+        \draw (s_split) -- (s_split -| I0) node[label=left:$S$] (S) {};
+        \draw (s_split) |- (and2.in 1);
+
+        % AND outputs to OR inputs
+        \draw (and1.out) -| (or1.in 1);
+        \draw (and2.out) -| (or1.in 2);
+
+        % Output Y
+        \draw (or1.out) -- (3.5,1) node[right] {$Y$};
+    \end{circuitikz}
+    \caption{Logic diagram of the 2-to-1 multiplexer.}
+    \label{fig:mux_logic}
+\end{figure}
+
+\begin{enumerate}
+    \item Build the three switch circuits for $S$, $I_0$, $I_1$ as in Lab 0 (switch to $+5\,\mathrm{V}$, $330\,\Omega$ pull-down to GND). Note that $S$ drives two gate inputs ($2\times 0.4\,\mathrm{mA}$ through $330\,\Omega$ is about $0.26\,\mathrm{V}$, below $V_{IL}$, so the pull-down is still fine).
+    \item Wire the circuit according to Table \ref{tab:mux_wiring}. Connect pin 14 to $+5\,\mathrm{V}$ and pin 7 to GND on every IC. The output $Y$ goes to the LED indicator stage of Lab 0 (an inverter of the 74LS04 with the LED and $330\,\Omega$ to $+5\,\mathrm{V}$), so the LED is ON when $Y=1$.
+    \item Set the switches to all eight combinations and complete Table \ref{tab:mux_truth}.
+\end{enumerate}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|l|l|}
+        \hline
+        \textbf{From} & \textbf{To} \\
+        \hline
+        Switch $S$ & 74LS04 pin 1 and 74LS08 pin 4 \\ \hline
+        74LS04 pin 2 ($\bar{S}$) & 74LS08 pin 2 \\ \hline
+        Switch $I_0$ & 74LS08 pin 1 \\ \hline
+        Switch $I_1$ & 74LS08 pin 5 \\ \hline
+        74LS08 pin 3 ($\bar{S} I_0$) & 74LS32 pin 1 \\ \hline
+        74LS08 pin 6 ($S I_1$) & 74LS32 pin 2 \\ \hline
+        74LS32 pin 3 ($Y$) & 74LS04 pin 5 (LED indicator stage) \\ \hline
+        74LS04 pin 6 & LED cathode (anode through $330\,\Omega$ to $+5\,\mathrm{V}$) \\ \hline
+    \end{tabular}
+    \caption{Wiring of the 2-to-1 multiplexer (74LS04, 74LS08 and 74LS32).}
+    \label{tab:mux_wiring}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|c|}
+        \hline
+        $S$ & $I_1$ & $I_0$ & $Y$ expected & LED observed \\
+        \hline
+        0&0&0&&\\ \hline
+        0&0&1&&\\ \hline
+        0&1&0&&\\ \hline
+        0&1&1&&\\ \hline
+        1&0&0&&\\ \hline
+        1&0&1&&\\ \hline
+        1&1&0&&\\ \hline
+        1&1&1&&\\ \hline
+    \end{tabular}
+    \caption{Function table of the 2-to-1 multiplexer.}
+    \label{tab:mux_truth}
+\end{table}
+
+\section*{Part II: Multiplexers in VHDL and a Testbench (about 30 min)}
 
 \subsection*{2-to-1 multiplexer}
-The 2-to-1 multiplexer with $Y = \bar{S}\,I_0 + S\,I_1$ is the circuit of Lab 5.5. In VHDL, the \texttt{WHEN ... ELSE} conditional assignment describes the same behavior in one line.
+The 2-to-1 multiplexer with $Y = \bar{S}\,I_0 + S\,I_1$ is the circuit that you have just built. In VHDL, the \texttt{WHEN ... ELSE} conditional assignment describes the same behavior in one line.
 
 \begin{figure}[H]
     \centering
@@ -98,7 +183,6 @@ WITH S SELECT
          I(2) WHEN "10",
          I(3) WHEN OTHERS;
 \end{minted}
-    \item Compile both designs separately (set each as the top-level entity) and record the number of logic elements and the RTL Viewer picture. Are they the same?
 \end{enumerate}
 
 \subsection*{A self-checking testbench}
@@ -142,19 +226,17 @@ END sim;
 \end{figure}
 
 \begin{enumerate}
-    \setcounter{enumi}{4}
-    \item Run the simulation of \texttt{mux4\_tb} (the simulator and its set-up are explained by your instructor) for at least $640\,\mathrm{ns}$. Are there any error messages? Show the waveform of $I$, $S$, $Y\_s$ and $Y\_b$.
-    \item Connect \texttt{mux4\_behav} to the board: $I$ = SW3--SW0, $S$ = SW9--SW8, $Y$ = LEDR0. Test all select values.
+    \setcounter{enumi}{3}
+    \item Compile both designs and run the simulation of \texttt{mux4\_tb} (the simulator and its set-up are explained by your instructor) for at least $640\,\mathrm{ns}$. Are there any error messages? Show the waveform of $I$, $S$, $Y\_s$ and $Y\_b$.
 \end{enumerate}
 
-\section*{Part II: Implementing a Function with a Multiplexer (about 20 min)}
+\section*{Part III: Implementing a Function with a Multiplexer (about 15 min)}
 
 A $2^n$-to-1 multiplexer can implement any function of $n+1$ variables (Shannon's expansion, Lecture 5). Use your \texttt{mux4\_behav} to implement $F(A,B,C) = \sum m(1,3,5,6,7)$.
 
 \begin{enumerate}
     \item Write an entity \texttt{func\_mux} with inputs $A$, $B$, $C$ and output $F$. Connect $A$ to $S_1$, $B$ to $S_0$ and the inputs $I_3..I_0$ as you found in the Pre-lab (the constants are \texttt{'0'} and \texttt{'1'}, and signal $C$ for the others).
-    \item Write a second entity \texttt{func\_sop} that implements $F$ directly as a minimized SOP expression. Use a K-map to find the expression: $F = $ \underline{\hspace{5cm}}
-    \item Simulate both and show that they are equivalent. Compile each design separately: which uses fewer logic elements? \underline{\hspace{3cm}}
+    \item Simulate \texttt{func\_mux} (or add it to a testbench like Figure \ref{fig:tb}) and check all 8 input combinations.
     \item Implement \texttt{func\_mux} on the board with $A$, $B$, $C$ = SW2--SW0 and $F$ = LEDR0 and complete Table \ref{tab:func}.
 \end{enumerate}
 
@@ -177,7 +259,7 @@ A $2^n$-to-1 multiplexer can implement any function of $n+1$ variables (Shannon'
     \label{tab:func}
 \end{table}
 
-\section*{Part III: A Simple ALU with Tri-State Output (about 35 min)}
+\section*{Part IV: A Simple ALU with Tri-State Output (about 35 min)}
 
 An ALU performs several arithmetic or logic operations on two operands; a multiplexer selects which result appears at the output. Design a 4-bit ALU with the operations of Table \ref{tab:alu} (Figure \ref{fig:alu}). Use a \texttt{PROCESS} with a \texttt{CASE} statement for the multiplexing. In a process, signals read inside the process must appear in its \textbf{sensitivity list} (the list in parentheses after \texttt{PROCESS}).
 
@@ -279,7 +361,10 @@ END behavior;
 
 \section*{Extension (take-home, or if time permits)}
 \begin{enumerate}
-    \item (Part I) To see the effect of a failing test, change one line of \texttt{mux4\_struct} deliberately (for example, swap $S_0$ and $S_1$) and rerun the testbench. What message appears? Restore the correct code.
+    \item (Part I) Measure $Y$ with the multimeter for $Y=0$ and $Y=1$ (valid TTL levels?). With $I_0=0$, $I_1=1$, connect Channel 1 of the oscilloscope to $S$ and Channel 2 to $Y$, toggle $S$ and estimate the delay of the three gate levels. Repeat with $I_0=1$, $I_1=0$.
+    \item (Part II) Compile \texttt{mux4\_struct} and \texttt{mux4\_behav} separately (set each as the top-level entity) and compare the number of logic elements and the RTL Viewer pictures. Connect \texttt{mux4\_behav} to the board ($I$ = SW3--SW0, $S$ = SW9--SW8, $Y$ = LEDR0) and test all select values.
+    \item (Part II) To see the effect of a failing test, change one line of \texttt{mux4\_struct} deliberately (for example, swap $S_0$ and $S_1$) and rerun the testbench. What message appears? Restore the correct code.
+    \item (Part III) Write a second entity \texttt{func\_sop} that implements $F$ as a minimized SOP expression found with a K-map ($F = $ \underline{\hspace{4cm}}), show that it is equivalent to \texttt{func\_mux}, and compare the number of logic elements.
 \end{enumerate}
 
 \subsection*{4-bit Magnitude Comparator}
@@ -321,6 +406,7 @@ AGB <= '1' WHEN UNSIGNED(A) >  UNSIGNED(B) ELSE '0';
 \section*{Check-off}
 Show your instructor or teaching assistant:
 \begin{enumerate}
+    \item The 2-to-1 multiplexer on the breadboard (Table \ref{tab:mux_truth}).
     \item The testbench waveform of the multiplexers without errors.
     \item The function implemented with a multiplexer on the board.
     \item The ALU with tri-state output working on the board (Table \ref{tab:alu_test}).
